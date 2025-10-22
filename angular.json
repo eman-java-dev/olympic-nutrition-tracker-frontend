@@ -1,3 +1,6 @@
+
+
+
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
@@ -17,6 +20,8 @@
             "polyfills": [
               "zone.js"
             ],
+          
+
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -83,7 +88,9 @@
             ],
             "styles": [
               "src/styles.css"
-            ]
+           
+           
+       ]
           }
         }
       }

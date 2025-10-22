@@ -1,1 +1,35 @@
 /* You can add global styles to this file, and also import other style files */
+:root{
+    --bg:#f7f9fb;        /* خلفية فاتحة هادئة */
+    --card:#ffffff;      /* بطاقات */
+    --ink:#1f2937;       /* نص داكن لطيف */
+    --muted:#6b7280;     /* نص ثانوي */
+    --brand:#0ea5a4;     /* فيروز هادئ */
+    --brand-dark:#0b8c8b;
+    --accent:#84cc16;    /* أخضر رقيق للإشعارات */
+    --danger:#ef4444;    /* أحمر للإخفاق */
+  }
+  
+  html,body{background:var(--bg); color:var(--ink);}
+  .navbar{ background:#111827; }
+  .navbar .navbar-brand, .navbar .nav-link{ color:#f3f4f6 !important; }
+  .card-soft{
+    background:var(--card);
+    border:1px solid #e5e7eb;
+    border-radius:16px;
+    box-shadow:0 8px 24px rgba(2,6,23,.06);
+  }
+  .btn-brand{ background:var(--brand); border:none; }
+  .btn-brand:hover{ background:var(--brand-dark); }
+  .form-label{font-weight:600; color:#374151;}
+  .helper{ color:var(--muted); font-size:.9rem;}
+  .badge-soft{ background: #ecfeff; color:#0e7490; }
+  .empty{
+    border:2px dashed #e5e7eb; border-radius:16px; padding:24px; color:var(--muted);
+    background:#fafafa;
+  }
+  .table thead th{ background:#f1f5f9; }
+  .alert-success{ background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
+  .alert-danger{ background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+  .card-soft { backdrop-filter: blur(2px); }
+h2 { letter-spacing: .2px; }

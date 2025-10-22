@@ -1,0 +1,97 @@
+<p>nutrition works!</p>
+<div class="card-soft p-4 mx-auto" style="max-width: 860px;">
+    <div class="d-flex align-items-center mb-2">
+      <h2 class="m-0">Journal de nutrition</h2>
+      <span class="badge badge-soft ms-3">Athlète & repas</span>
+    </div>
+    <p class="helper mb-3">Ajoutez les repas liés à un athlète, puis affichez l’historique.</p>
+  
+    <!-- رسائل -->
+    <div *ngIf="ok" class="alert alert-success py-2">{{ ok }}</div>
+    <div *ngIf="err" class="alert alert-danger py-2">{{ err }}</div>
+  
+    <!-- نموذج الإدخال -->
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">ID Athlète</label>
+        <input type="number" class="form-control" [(ngModel)]="form.athleteId" name="athleteId" placeholder="Ex. 1">
+      </div>
+  
+      <div class="col-md-3">
+        <label class="form-label">Repas</label>
+        <select class="form-select" [(ngModel)]="form.mealType" name="mealType">
+          <option value="breakfast">Petit-déjeuner</option>
+          <option value="lunch">Déjeuner</option>
+          <option value="dinner">Dîner</option>
+          <option value="snack">Snack</option>
+        </select>
+      </div>
+  
+      <div class="col-md-2">
+        <label class="form-label">Calories (kcal)</label>
+        <input type="number" class="form-control" [(ngModel)]="form.caloriesKcal" name="cal" placeholder="Ex. 520">
+      </div>
+  
+      <div class="col-md-2">
+        <label class="form-label">Protéines (g)</label>
+        <input type="number" class="form-control" [(ngModel)]="form.proteinsG" name="prot" placeholder="Ex. 30">
+      </div>
+  
+      <div class="col-md-2">
+        <label class="form-label">Glucides (g)</label>
+        <input type="number" class="form-control" [(ngModel)]="form.carbsG" name="carb" placeholder="Ex. 60">
+      </div>
+  
+      <div class="col-md-2">
+        <label class="form-label">Lipides (g)</label>
+        <input type="number" class="form-control" [(ngModel)]="form.fatsG" name="fat" placeholder="Ex. 15">
+      </div>
+  
+      <div class="col-md-2 d-flex align-items-end">
+        <button class="btn btn-brand w-100" (click)="add()">Ajouter</button>
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <button class="btn btn-outline-secondary w-100" (click)="load()">Actualiser</button>
+      </div>
+    </div>
+  
+    <hr class="my-4">
+  
+    <!-- اللائحة -->
+    <div *ngIf="loading" class="helper">Chargement…</div>
+    <div *ngIf="!loading && !list.length" class="empty">Aucune entrée pour cet athlète.</div>
+  
+    <div *ngIf="!loading && list.length">
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Repas</th>
+              <th>Calories</th>
+              <th>Protéines</th>
+              <th>Glucides</th>
+              <th>Lipides</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let e of list">
+              <td>{{ e.id }}</td>
+              <td class="text-capitalize">{{ e.mealType }}</td>
+              <td>{{ e.caloriesKcal || 0 }}</td>
+              <td>{{ e.proteinsG || 0 }}</td>
+              <td>{{ e.carbsG || 0 }}</td>
+              <td>{{ e.fatsG || 0 }}</td>
+              <td>{{ e.loggedAt || '—' }}</td>
+              <td class="text-end">
+                <button class="btn btn-sm btn-outline-danger" (click)="remove(e.id)">Supprimer</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  

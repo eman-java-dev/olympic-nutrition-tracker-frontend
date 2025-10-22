@@ -1,0 +1,7 @@
+:root { --primary:#0d6efd; --bg:#f6f7fb; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg); font-family: system-ui, Segoe UI, Tahoma, sans-serif;}
+.topbar{background:#111;color:#fff;padding:.8rem 1rem;display:flex;align-items:center}
+.brand{font-weight:700}
+.page{padding:1.2rem}
+.footer{text-align:center;color:#666;padding:1rem}
