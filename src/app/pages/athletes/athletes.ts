@@ -1,64 +1,81 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { AthleteService, Athlete } from '../../services/athlete';
+import { FormsModule, NgForm } from '@angular/forms';
+import { Athlete, AthleteCreateDTO, AthleteService } from '../../services/athlete';
 
 @Component({
   selector: 'app-athletes',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './athletes.html',
-  styleUrls: ['./athletes.css']
+  templateUrl: './athletes.html'
 })
 export class AthletesComponent implements OnInit {
-  athletes: Athlete[] = [];
+  list: Athlete[] = [];
+  loading = false;
+  ok = '';
+  err = '';
 
-  // القالب يستخدم newAthlete -> نوفّرها، ونُبقي form د لاحقًا
-  form: Athlete = { name: '', gender: 'M' };
-  get newAthlete(): Athlete { return this.form; }   // 👈 يرضي القالب
+  form: AthleteCreateDTO = {
+    name: '',
+    age: null,
+    sex: 'F',
+    heightCm: null,
+    weightKg: null
+  };
 
-  loading = false;          // 👈 حتى تعمل *ngIf="loading"
-  success = '';
-  error = '';
+  constructor(private service: AthleteService) {}
 
-  constructor(private svc: AthleteService) {}
-
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.load();
+  }
 
   load(): void {
-    this.loading = true; this.error = ''; this.success = '';
-    this.svc.listAthletes().subscribe({
-      next: (d: Athlete[]) => { this.athletes = d; this.loading = false; },
-      error: () => { this.error = 'Erreur de chargement.'; this.loading = false; }
+    this.ok = ''; this.err = ''; this.loading = true;
+    this.service.getAll().subscribe({
+      next: (d) => { this.list = d ?? []; this.loading = false; },
+      error: () => { this.err = 'Erreur de chargement.'; this.loading = false; }
     });
   }
 
-  // القالب ينادي create() -> نربطها بدالة add()
-  create(): void { this.add(); }                    // 👈
-
-  add(): void {
-    this.error = ''; this.success = '';
-    if (!this.form.name) { this.error = 'Le nom est requis.'; return; }
-    this.svc.createAthlete(this.form).subscribe({
+  add(f: NgForm): void {
+    this.ok = ''; this.err = '';
+    if (f.invalid || !this.form.name) {
+      this.err = 'Veuillez compléter le formulaire.'; return;
+    }
+    this.service.create(this.form).subscribe({
       next: () => {
-        this.success = 'Athlète créé avec succès.';
-        this.form = { name: '', gender: 'M' };
+        this.ok = 'Athlete ajouté(e).';
+        // إعادة ضبط النموذج
+        this.form = { name: '', age: null, sex: 'F', heightCm: null, weightKg: null };
+        f.resetForm({ sex: 'F' });
         this.load();
       },
-      error: () => { this.error = 'Échec de création (API).'; }
+      error: () => this.err = 'Échec de création.'
     });
   }
 
+  /** حذف سريع (مع تأكيد بسيط) */
   remove(id?: number): void {
-    if (!id) return;
-    this.svc.deleteAthlete(id).subscribe({
-      next: () => this.load(),
-      error: () => { this.error = 'Échec de suppression.'; }
+    if (!id) { return; }
+    const ok = confirm('Supprimer cet(te) athlète ?');
+    if (!ok) { return; }
+
+    // حذف متفائل: نخفي من الواجهة مباشرة
+    const old = this.list.slice();
+    this.list = this.list.filter(a => a.id !== id);
+
+    this.service.delete(id).subscribe({
+      next: () => { this.ok = 'Supprimé.'; },
+      error: () => { this.err = 'Échec de suppression.'; this.list = old; }
     });
   }
 
-  // القالب يستخدم trackById -> نوفّرها
-  trackById(index: number, a: Athlete): number {    // 👈
-    return a.id ?? index;
+  /** حساب BMI للعرض إن لم يأتِ من الـ API */
+  bmiOf(a: Athlete): string {
+    const h = (a.heightCm ?? 0) / 100;
+    const w = (a.weightKg ?? 0);
+    if (!h || !w) { return '-'; }
+    const bmi = w / (h * h);
+    return bmi ? bmi.toFixed(1) : '-';
   }
 }

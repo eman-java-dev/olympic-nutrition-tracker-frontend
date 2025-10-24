@@ -1,8 +1,37 @@
-<router-outlet></router-outlet>
-<nav class="topbar">
-  <div class="brand"> Olympic Nutrition Tracker</div>
-</nav>
-<main class="page">
-  <router-outlet></router-outlet>
-</main>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo-dot"></span>
+    <span class="brand-title">Olympic Nutrition Tracker</span>
+  </div>
+</header>
+
+<!-- الهوم: بدون قائمة -->
+<ng-container *ngIf="isHome(); else appWithNav">
+  <main class="content no-chrome" [@routeAnim]>
+    <router-outlet></router-outlet>
+  </main>
+</ng-container>
+
+<!-- باقي الصفحات: قائمة + محتوى -->
+<ng-template #appWithNav>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Main navigation">
+      <a
+        routerLink="/athletes"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="active"
+        class="nav-item"
+      >Athletes</a>
+
+      <a routerLink="/consultations" routerLinkActive="active" class="nav-item">Consultations</a>
+      <a routerLink="/coaches"        routerLinkActive="active" class="nav-item">Coaches</a>
+      <a routerLink="/nutrition"      routerLinkActive="active" class="nav-item">Nutrition</a>
+    </nav>
+
+    <main class="content" [@routeAnim]>
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</ng-template>
+
 <footer class="footer">© 2025 • Eman</footer>

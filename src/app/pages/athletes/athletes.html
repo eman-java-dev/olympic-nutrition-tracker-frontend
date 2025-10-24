@@ -1,43 +1,94 @@
-<<div class="container" style="max-width:900px;margin:auto;padding:16px;">
-    <h2 style="margin:0 0 12px;">Athletes</h2>
-  
-    <!-- حالة التحميل / الخطأ -->
-    <div *ngIf="loading">Loading…</div>
-    <div *ngIf="error" style="color:#b00020">{{ error }}</div>
-  
-    <!-- نموذج إضافة سريع -->
-    <form (ngSubmit)="create()" #f="ngForm" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;">
-      <input type="text" placeholder="Name" required [(ngModel)]="newAthlete.name" name="name">
-      <input type="number" placeholder="Age" required [(ngModel)]="newAthlete.age" name="age" min="1">
-      <input type="text" placeholder="Gender" required [(ngModel)]="newAthlete.gender" name="gender">
-      <input type="number" placeholder="Height (cm)" required [(ngModel)]="newAthlete.height" name="height" min="1">
-      <input type="number" placeholder="Weight (kg)" required [(ngModel)]="newAthlete.weight" name="weight" min="1">
-      <button type="submit" [disabled]="f.invalid">Add</button>
+<h1>Athletes</h1>
+
+<!-- رسائل -->
+<div *ngIf="err" class="alert alert-danger my-2">{{ err }}</div>
+<div *ngIf="ok"  class="alert alert-success my-2">{{ ok }}</div>
+
+<!-- نموذج الإضافة -->
+<div class="card mb-3">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Add Athlete</h5>
+
+    <form #f="ngForm" (ngSubmit)="add(f)" class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Name</label>
+        <input class="form-control" name="name" [(ngModel)]="form.name" required />
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label">Age</label>
+        <input class="form-control" type="number" name="age" [(ngModel)]="form.age" min="1" />
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label">Sex</label>
+        <select class="form-select" name="sex" [(ngModel)]="form.sex">
+          <option value="F">F</option>
+          <option value="M">M</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label">Height (cm)</label>
+        <input class="form-control" type="number" name="heightCm" [(ngModel)]="form.heightCm" min="1" />
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label">Weight (kg)</label>
+        <input class="form-control" type="number" name="weightKg" [(ngModel)]="form.weightKg" min="1" />
+      </div>
+
+      <div class="col-12">
+        <button class="btn-brand" type="submit">Add</button>
+      </div>
     </form>
-  
-    <!-- الجدول -->
-    <table *ngIf="!loading && athletes?.length" border="1" cellpadding="8" cellspacing="0" width="100%">
-      <thead>
-        <tr>
-          <th>ID</th><th>Name</th><th>Age</th><th>Gender</th><th>Height</th><th>Weight</th><th>BMI</th><th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let a of athletes; trackBy: trackById">
-          <td>{{ a.id }}</td>
-          <td>{{ a.name }}</td>
-          <td>{{ a.age }}</td>
-          <td>{{ a.gender }}</td>
-          <td>{{ a.height }}</td>
-          <td>{{ a.weight }}</td>
-          <td>{{ a.bmi ?? '-' }}</td>
-          <td>
-            <button (click)="remove(a.id!)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  
-    <div *ngIf="!loading && !athletes?.length" style="opacity:.7">No athletes yet.</div>
   </div>
-  
+</div>
+
+<!-- القائمة -->
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Athlete List</h5>
+
+    <div *ngIf="loading" class="text-muted">Chargement…</div>
+    <div *ngIf="!loading && !list.length" class="text-muted">No athletes yet.</div>
+
+    <div *ngIf="!loading && list.length">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:64px">#</th>
+            <th>Name</th>
+            <th style="width:90px">Age</th>
+            <th style="width:90px">Sex</th>
+            <th style="width:120px">Height</th>
+            <th style="width:120px">Weight</th>
+            <th style="width:90px">BMI</th>
+            <th style="width:120px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of list; index as i">
+            <td>{{ i + 1 }}</td>
+            <td>{{ a.name }}</td>
+            <td>{{ a.age ?? '-' }}</td>
+            <td>{{ a.sex }}</td>
+            <td>{{ a.heightCm ?? '-' }} <span *ngIf="a.heightCm">cm</span></td>
+            <td>{{ a.weightKg ?? '-' }} <span *ngIf="a.weightKg">kg</span></td>
+            <td>{{ a.bmi ?? bmiOf(a) }}</td>
+            <td>
+              <!-- زر Delete زجاجي أحمر متناسق -->
+              <button
+                class="btn-glass"
+                style="background:linear-gradient(135deg,#ef4444,#dc2626)"
+                (click)="remove(a.id)">
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
