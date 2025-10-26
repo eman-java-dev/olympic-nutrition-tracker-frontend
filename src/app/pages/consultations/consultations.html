@@ -1,57 +1,31 @@
-<div class="content">
-  <h2>Consultations</h2>
+<div class="container section">
+  <h2>{{ t('consult.title') }}</h2>
+  <p style="color:var(--muted)">{{ t('consult.help') }}</p>
 
-  <div *ngIf="err" class="alert alert-danger">{{ err }}</div>
-  <div *ngIf="ok" class="alert alert-success">{{ ok }}</div>
+  <form #f="ngForm" (ngSubmit)="save(f)" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:16px 0;">
+    <input class="input" name="name" [(ngModel)]="model.name" [placeholder]="t('consult.name')" required />
+    <input class="input" type="datetime-local" name="date" [(ngModel)]="model.date" [placeholder]="t('consult.when')" required />
+    <input class="input" name="note" [(ngModel)]="model.note" [placeholder]="t('consult.note')" />
+    <div style="grid-column:1/-1">
+      <button class="btn btn-primary" type="submit">{{ t('consult.book') }}</button>
+    </div>
+  </form>
 
   <div class="card">
-    <h4>Nouvelle Consultation</h4>
-    <form (ngSubmit)="add()" #f="ngForm">
-      <div>
-        <label>Topic</label>
-        <input type="text" [(ngModel)]="form.topic" name="topic" required />
-      </div>
-      <div>
-        <label>Message</label>
-        <textarea [(ngModel)]="form.message" name="message" required></textarea>
-      </div>
-      <div>
-        <label>Priority</label>
-        <select [(ngModel)]="form.priority" name="priority">
-          <option value="LOW">Low</option>
-          <option value="MEDIUM">Medium</option>
-          <option value="HIGH">High</option>
-        </select>
-      </div>
-      <button type="submit" class="btn btn-primary">Add</button>
-    </form>
-  </div>
-
-  <div class="card" style="margin-top: 1rem;">
-    <h4>Consultation List</h4>
-    <div *ngIf="loading">Chargement...</div>
-    <table *ngIf="list.length">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Topic</th>
-          <th>Message</th>
-          <th>Priority</th>
-          <th>Date</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let c of list; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ c.topic }}</td>
-          <td>{{ c.message }}</td>
-          <td>{{ c.priority }}</td>
-          
-          <td><a href="#" (click)="remove(c.id)">Delete</a></td>
-        </tr>
-      </tbody>
-    </table>
-    <p *ngIf="!loading && !list.length">Aucune consultation pour le moment.</p>
+    <div class="card-body">
+      <table class="table">
+        <thead><tr><th>{{ t('consult.name') }}</th><th>{{ t('consult.when') }}</th><th>{{ t('consult.note') }}</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let b of list()">
+            <td>{{b.name}}</td><td>{{b.date}}</td><td>{{b.note || '—'}}</td>
+            <td class="actions">
+              <button class="btn btn-ghost" (click)="edit(b)">{{ t('coaches.update') }}</button>
+              <button class="btn btn-ghost" (click)="remove(b.id!)">Delete</button>
+            </td>
+          </tr>
+          <tr *ngIf="!list()?.length"><td colspan="4" style="color:var(--muted)">{{ t('consult.noData') }}</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

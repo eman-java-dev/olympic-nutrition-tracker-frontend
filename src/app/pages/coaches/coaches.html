@@ -1,39 +1,37 @@
-<div class="page">
-    <h2 class="page-title">Coaches</h2>
-  
-    <div *ngIf="err" class="alert danger">{{ err }}</div>
-  
-    <div class="card">
-      <h3 class="section-title">Add Coach</h3>
-      <form #f="ngForm" (ngSubmit)="add(f)" class="grid">
-        <label><span>Name</span><input name="name" [(ngModel)]="form.name" required /></label>
-        <label><span>Specialty</span><input name="specialty" [(ngModel)]="form.specialty" required /></label>
-        <label><span>Email</span><input name="email" [(ngModel)]="form.email" type="email" /></label>
-        <label><span>Phone</span><input name="phone" [(ngModel)]="form.phone" /></label>
-        <div class="full" style="display:flex;gap:10px"><button type="submit">Add</button></div>
-      </form>
+<div class="container section">
+  <h2>{{ t('coaches.title') }}</h2>
+  <p style="color:var(--muted)">{{ t('coaches.help') }}</p>
+
+  <form #f="ngForm" (ngSubmit)="save(f)" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:16px 0;">
+    <input class="input" name="name" [(ngModel)]="model.name" [placeholder]="t('coaches.name')" required />
+    <input class="input" name="specialty" [(ngModel)]="model.specialty" [placeholder]="t('coaches.spec')" />
+    <input class="input" name="email" [(ngModel)]="model.email" [placeholder]="t('coaches.email')" type="email" />
+    <input class="input" name="phone" [(ngModel)]="model.phone" [placeholder]="t('coaches.phone')" />
+    <div class="actions" style="grid-column:1/-1">
+      <button class="btn btn-primary" type="submit">{{ editingId() ? t('coaches.update') : t('coaches.add') }}</button>
+      <button class="btn btn-ghost" *ngIf="editingId()" type="button" (click)="cancel(f)">{{ t('coaches.cancel') }}</button>
     </div>
-  
-    <div class="card">
-      <h3 class="section-title">Coach List</h3>
-      <table class="table" *ngIf="list.length; else empty">
-        <thead>
-          <tr><th>#</th><th>Name</th><th>Specialty</th><th>Email</th><th>Phone</th><th></th></tr>
-        </thead>
+  </form>
+
+  <div class="card">
+    <div class="card-body">
+      <table class="table">
+        <thead><tr><th>#</th><th>{{ t('coaches.name') }}</th><th>{{ t('coaches.spec') }}</th><th>{{ t('coaches.email') }}</th><th>{{ t('coaches.phone') }}</th><th>Actions</th></tr></thead>
         <tbody>
-          <tr *ngFor="let c of list; let i = index">
-            <td>{{ i + 1 }}</td>
-            <td>{{ c.name }}</td>
-            <td>{{ c.specialty }}</td>
-            <td>{{ c.email || '-' }}</td>
-            <td>{{ c.phone || '-' }}</td>
-            <td class="text-end">
-              <button class="link danger" (click)="remove(c.id)">Delete</button>
+          <tr *ngFor="let c of list(); index as i">
+            <td>{{i+1}}</td>
+            <td>{{c.name}}</td>
+            <td>{{c.specialty || '-'}}</td>
+            <td>{{c.email || '-'}}</td>
+            <td>{{c.phone || '-'}}</td>
+            <td class="actions">
+              <button class="btn btn-ghost" (click)="edit(c)">{{ t('coaches.update') }}</button>
+              <button class="btn btn-ghost" (click)="remove(c.id!)">Delete</button>
             </td>
           </tr>
+          <tr *ngIf="!list()?.length"><td colspan="6" style="color:var(--muted)">{{ t('coaches.noData') }}</td></tr>
         </tbody>
       </table>
-      <ng-template #empty><div class="muted">No coaches yet.</div></ng-template>
     </div>
   </div>
-  
+</div>

@@ -1,86 +1,47 @@
-<div class="nutrition-container">
-  <h2 class="title">Nutrition Tracker</h2>
+<div class="container section">
+  <h2>{{ t('nutrition.title') }}</h2>
+  <p style="color:var(--muted)">{{ t('nutrition.help') }}</p>
 
-  <div *ngIf="ok" class="alert success">{{ ok }}</div>
-  <div *ngIf="err" class="alert error">{{ err }}</div>
-
-  <form (ngSubmit)="add()" class="nutrition-form">
-    <div class="form-row">
-      <div>
-        <label>Calories (kcal)</label>
-        <input type="number" [(ngModel)]="form.calories" name="calories" required />
-      </div>
-      <div>
-        <label>Protein (g)</label>
-        <input type="number" [(ngModel)]="form.protein" name="protein" required />
-      </div>
-      <div>
-        <label>Carbs (g)</label>
-        <input type="number" [(ngModel)]="form.carbs" name="carbs" required />
-      </div>
-      <div>
-        <label>Fats (g)</label>
-        <input type="number" [(ngModel)]="form.fats" name="fats" required />
-      </div>
-      <div>
-        <label>Date</label>
-        <input type="date" [(ngModel)]="form.date" name="date" />
-      </div>
+  <form #f="ngForm" (ngSubmit)="save(f)" style="display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin:16px 0;">
+    <input class="input" type="date" name="date" [(ngModel)]="model.date" required />
+    <input class="input" type="number" name="calories" [(ngModel)]="model.calories" [placeholder]="t('nutrition.cal')" required />
+    <input class="input" type="number" name="protein" [(ngModel)]="model.protein" [placeholder]="t('nutrition.p')" />
+    <input class="input" type="number" name="carbs" [(ngModel)]="model.carbs" [placeholder]="t('nutrition.c')" />
+    <input class="input" type="number" name="fat" [(ngModel)]="model.fat" [placeholder]="t('nutrition.f')" />
+    <input class="input" name="notes" [(ngModel)]="model.notes" [placeholder]="t('nutrition.notes')" />
+    <div class="actions" style="grid-column:1/-1">
+      <button class="btn btn-primary" type="submit">{{ editingId() ? t('nutrition.update') : t('nutrition.add') }}</button>
+      <button class="btn btn-ghost" type="button" *ngIf="editingId()" (click)="editingId.set(null); f.resetForm()">{{ t('nutrition.cancel') }}</button>
     </div>
-
-    <button type="submit" class="btn-add"><span>+ Add Entry</span></button>
   </form>
 
-  <!-- List -->
-  <div class="nutrition-list" *ngIf="list.length">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Date</th>
-          <th>Calories</th>
-          <th>Protein</th>
-          <th>Carbs</th>
-          <th>Fats</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let n of list; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ n.date | date:'shortDate' }}</td>
-          <td>{{ n.calories }}</td>
-          <td>{{ n.protein }}</td>
-          <td>{{ n.carbs }}</td>
-          <td>{{ n.fats }}</td>
-          <td><button (click)="remove(n.id)" class="btn-delete">Delete</button></td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-body">
+      <span class="badge">{{ t('nutrition.summary') }}</span>
+      <div style="display:flex; gap:16px; margin-top:8px;">
+        <div>Calories: <b>{{ totalCalories }}</b></div>
+        <div>P: <b>{{ totals.p }}g</b></div>
+        <div>C: <b>{{ totals.c }}g</b></div>
+        <div>F: <b>{{ totals.f }}g</b></div>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="!loading && !list.length" class="empty">Aucun enregistrement nutritionnel pour le moment 🍽️</div>
-
-  <!-- ===== مخطط جميل ومتناسق بالألوان ===== -->
-  <div class="chart-card" *ngIf="chartData.length">
-    <h4 class="chart-title">Calories par jour</h4>
-
-    <ngx-charts-bar-vertical
-  [view]="chartView"
-  [results]="chartData"
-  [scheme]="colorScheme"
-  [gradient]="gradient"
-  [animations]="true"
-  [xAxis]="showXAxis"
-  [yAxis]="showYAxis"
-  [showDataLabel]="showDataLabel"
-  [legend]="legend"
-  [xAxisLabel]="xAxisLabel"
-  [yAxisLabel]="yAxisLabel"
-  [roundEdges]="true"
-  [yScaleMax]="yMax">
-</ngx-charts-bar-vertical>
-
-
+  <div class="card">
+    <div class="card-body">
+      <table class="table">
+        <thead><tr><th>{{ t('nutrition.date') }}</th><th>{{ t('nutrition.cal') }}</th><th>P</th><th>C</th><th>F</th><th>{{ t('nutrition.notes') }}</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let e of list()">
+            <td>{{e.date}}</td><td>{{e.calories}}</td><td>{{e.protein}}</td><td>{{e.carbs}}</td><td>{{e.fat}}</td><td>{{e.notes || '—'}}</td>
+            <td class="actions">
+              <button class="btn btn-ghost" (click)="edit(e)">{{ t('nutrition.update') }}</button>
+              <button class="btn btn-ghost" (click)="remove(e.id!)">Delete</button>
+            </td>
+          </tr>
+          <tr *ngIf="!list()?.length"><td colspan="7" style="color:var(--muted)">—</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

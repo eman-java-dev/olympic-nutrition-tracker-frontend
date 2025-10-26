@@ -1,37 +1,25 @@
-<header class="topbar">
-  <div class="brand">
-    <span class="logo-dot"></span>
-    <span class="brand-title">Olympic Nutrition Tracker</span>
+<nav class="nav">
+  <div class="container nav-inner">
+    <div class="brand"><a routerLink="/">NUTRITION TRACKER</a></div>
+
+    <div class="menu">
+      <a routerLink="/">{{ t('nav.home') }}</a>
+      <a routerLink="/athletes">{{ t('nav.athletes') }}</a>
+      <a routerLink="/nutrition">{{ t('nav.nutrition') }}</a>
+      <a routerLink="/consultations">{{ t('nav.consultations') }}</a>
+      <a routerLink="/coaches">{{ t('nav.coaches') }}</a>
+    </div>
+
+    <div style="display:flex; gap:8px; align-items:center">
+      <button class="btn btn-ghost" (click)="switch('en')" [disabled]="current() === 'en'">EN</button>
+      <button class="btn btn-ghost" (click)="switch('fr')" [disabled]="current() === 'fr'">FR</button>
+      <a class="btn btn-primary">{{ t('cta.start') }}</a>
+    </div>
   </div>
-</header>
+</nav>
 
-<!-- الهوم: بدون قائمة -->
-<ng-container *ngIf="isHome(); else appWithNav">
-  <main class="content no-chrome" [@routeAnim]>
-    <router-outlet></router-outlet>
-  </main>
-</ng-container>
+<router-outlet></router-outlet>
 
-<!-- باقي الصفحات: قائمة + محتوى -->
-<ng-template #appWithNav>
-  <div class="layout">
-    <nav class="sidebar" aria-label="Main navigation">
-      <a
-        routerLink="/athletes"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLinkActive="active"
-        class="nav-item"
-      >Athletes</a>
-
-      <a routerLink="/consultations" routerLinkActive="active" class="nav-item">Consultations</a>
-      <a routerLink="/coaches"        routerLinkActive="active" class="nav-item">Coaches</a>
-      <a routerLink="/nutrition"      routerLinkActive="active" class="nav-item">Nutrition</a>
-    </nav>
-
-    <main class="content" [@routeAnim]>
-      <router-outlet></router-outlet>
-    </main>
-  </div>
-</ng-template>
-
-<footer class="footer">© 2025 • Eman</footer>
+<footer class="footer">
+  <div class="container">© {{year}} Nutrition Tracker</div>
+</footer>

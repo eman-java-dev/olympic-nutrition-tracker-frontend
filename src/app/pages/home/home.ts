@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { LangService } from '../../services/lang';
 
 @Component({
-  selector: 'app-home',
   standalone: true,
-  imports: [RouterLink],
+  selector: 'app-home',
   templateUrl: './home.html',
-  styleUrls: ['./home.css']
+  styleUrl: './home.css'
 })
-export class HomeComponent {}
+export class HomeComponent {
+  lang = inject(LangService);
+  t = (k:string)=>this.lang.t(k);
+}

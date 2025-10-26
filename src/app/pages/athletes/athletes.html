@@ -1,94 +1,76 @@
-<h1>Athletes</h1>
+<div class="layout">
 
-<!-- رسائل -->
-<div *ngIf="err" class="alert alert-danger my-2">{{ err }}</div>
-<div *ngIf="ok"  class="alert alert-success my-2">{{ ok }}</div>
+  <!-- Left menu -->
+  <aside class="sidebar">
+    <div class="brand-mini">NT</div>
+    <nav class="sidemenu">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">{{ t('nav.home') }}</a>
+      <a routerLink="/athletes" routerLinkActive="active">{{ t('nav.athletes') }}</a>
+      <a routerLink="/nutrition" routerLinkActive="active">{{ t('nav.nutrition') }}</a>
+      <a routerLink="/consultations" routerLinkActive="active">{{ t('nav.consultations') }}</a>
+      <a routerLink="/coaches" routerLinkActive="active">{{ t('nav.coaches') }}</a>
+    </nav>
+    <div class="sidebar-footer">
+      <small>© {{year}}</small>
+    </div>
+  </aside>
 
-<!-- نموذج الإضافة -->
-<div class="card mb-3">
-  <div class="card-body">
-    <h5 class="card-title mb-3">Add Athlete</h5>
+  <!-- Center operations -->
+  <main class="center">
+    <header class="center-header">
+      <h2>{{ t('athletes.title') }}</h2>
+      <p class="muted">{{ t('athletes.help') }}</p>
+    </header>
 
-    <form #f="ngForm" (ngSubmit)="add(f)" class="row g-3">
-      <div class="col-md-4">
-        <label class="form-label">Name</label>
-        <input class="form-control" name="name" [(ngModel)]="form.name" required />
-      </div>
+    <div *ngIf="loading()" class="notice">Loading…</div>
+    <div *ngIf="error()" class="error">{{error()}}</div>
 
-      <div class="col-md-2">
-        <label class="form-label">Age</label>
-        <input class="form-control" type="number" name="age" [(ngModel)]="form.age" min="1" />
-      </div>
-
-      <div class="col-md-2">
-        <label class="form-label">Sex</label>
-        <select class="form-select" name="sex" [(ngModel)]="form.sex">
-          <option value="F">F</option>
-          <option value="M">M</option>
-        </select>
-      </div>
-
-      <div class="col-md-2">
-        <label class="form-label">Height (cm)</label>
-        <input class="form-control" type="number" name="heightCm" [(ngModel)]="form.heightCm" min="1" />
-      </div>
-
-      <div class="col-md-2">
-        <label class="form-label">Weight (kg)</label>
-        <input class="form-control" type="number" name="weightKg" [(ngModel)]="form.weightKg" min="1" />
-      </div>
-
-      <div class="col-12">
-        <button class="btn-brand" type="submit">Add</button>
+    <form #f="ngForm" (ngSubmit)="editingId() ? update(f) : create(f)" class="form-grid">
+      <input class="input" name="name" [(ngModel)]="model.name" [placeholder]="t('athletes.name')" required />
+      <input class="input" type="number" name="age" [(ngModel)]="model.age" [placeholder]="t('athletes.age')" />
+      <input class="input" type="number" step="0.1" name="weightKg" [(ngModel)]="model.weightKg" [placeholder]="t('athletes.weight')" />
+      <input class="input" type="number" step="0.1" name="heightCm" [(ngModel)]="model.heightCm" [placeholder]="t('athletes.height')" />
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">{{ editingId() ? t('athletes.update') : t('athletes.add') }}</button>
+        <button class="btn btn-ghost" type="button" *ngIf="editingId()" (click)="cancelEdit(f)">{{ t('athletes.cancel') }}</button>
       </div>
     </form>
-  </div>
-</div>
 
-<!-- القائمة -->
-<div class="card">
-  <div class="card-body">
-    <h5 class="card-title mb-3">Athlete List</h5>
-
-    <div *ngIf="loading" class="text-muted">Chargement…</div>
-    <div *ngIf="!loading && !list.length" class="text-muted">No athletes yet.</div>
-
-    <div *ngIf="!loading && list.length">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:64px">#</th>
-            <th>Name</th>
-            <th style="width:90px">Age</th>
-            <th style="width:90px">Sex</th>
-            <th style="width:120px">Height</th>
-            <th style="width:120px">Weight</th>
-            <th style="width:90px">BMI</th>
-            <th style="width:120px"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let a of list; index as i">
-            <td>{{ i + 1 }}</td>
-            <td>{{ a.name }}</td>
-            <td>{{ a.age ?? '-' }}</td>
-            <td>{{ a.sex }}</td>
-            <td>{{ a.heightCm ?? '-' }} <span *ngIf="a.heightCm">cm</span></td>
-            <td>{{ a.weightKg ?? '-' }} <span *ngIf="a.weightKg">kg</span></td>
-            <td>{{ a.bmi ?? bmiOf(a) }}</td>
-            <td>
-              <!-- زر Delete زجاجي أحمر متناسق -->
-              <button
-                class="btn-glass"
-                style="background:linear-gradient(135deg,#ef4444,#dc2626)"
-                (click)="remove(a.id)">
-                Delete
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="card">
+      <div class="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th><th>{{ t('athletes.name') }}</th><th>{{ t('athletes.age') }}</th><th>{{ t('athletes.weight') }}</th><th>{{ t('athletes.height') }}</th><th>{{ t('athletes.actions') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let a of list(); index as i">
+              <td>{{i+1}}</td>
+              <td>{{a.name}}</td>
+              <td>{{a.age ?? '—'}}</td>
+              <td>{{a.weightKg ?? '—'}} kg</td>
+              <td>{{a.heightCm ?? '—'}} cm</td>
+              <td class="actions">
+                <button class="btn btn-ghost" (click)="startEdit(a)">{{ t('athletes.update') }}</button>
+                <button class="btn btn-ghost" (click)="remove(a.id!)">Delete</button>
+              </td>
+            </tr>
+            <tr *ngIf="!list()?.length">
+              <td colspan="6" class="muted">{{ t('athletes.noData') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+  </main>
 
-  </div>
+  <!-- Right video -->
+  <aside class="right-video">
+    <video autoplay muted loop playsinline>
+      <source src="assets/side.mp4" type="video/mp4" />
+    </video>
+    <div class="video-overlay"></div>
+  </aside>
+
 </div>

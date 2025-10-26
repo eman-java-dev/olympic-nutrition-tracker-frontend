@@ -1,81 +1,63 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Athlete, AthleteCreateDTO, AthleteService } from '../../services/athlete';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { LangService } from '../../services/lang';
+import { Athlete, AthleteService } from '../../services/athlete';
 
 @Component({
-  selector: 'app-athletes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './athletes.html'
+  selector: 'app-athletes',
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  templateUrl: './athletes.html',
+  styleUrl: './athletes.css'
 })
 export class AthletesComponent implements OnInit {
-  list: Athlete[] = [];
-  loading = false;
-  ok = '';
-  err = '';
+  lang = inject(LangService);
+  t = (k:string)=>this.lang.t(k);
 
-  form: AthleteCreateDTO = {
-    name: '',
-    age: null,
-    sex: 'F',
-    heightCm: null,
-    weightKg: null
-  };
+  private service = inject(AthleteService);
+  year = new Date().getFullYear();
 
-  constructor(private service: AthleteService) {}
+  loading = signal(false);
+  error = signal<string|null>(null);
+  list = signal<Athlete[]>([]);
+  editingId = signal<number|null>(null);
 
-  ngOnInit(): void {
-    this.load();
+  model: Athlete = { name: '' };
+
+  async ngOnInit(){ await this.fetch(); }
+  async fetch(){ this.loading.set(true); this.error.set(null);
+    try { this.list.set(await this.service.list()); } catch { this.error.set('Load failed'); }
+    this.loading.set(false);
   }
-
-  load(): void {
-    this.ok = ''; this.err = ''; this.loading = true;
-    this.service.getAll().subscribe({
-      next: (d) => { this.list = d ?? []; this.loading = false; },
-      error: () => { this.err = 'Erreur de chargement.'; this.loading = false; }
-    });
+  async create(form: NgForm){
+    if(!this.model.name?.trim()) return;
+    this.loading.set(true);
+    try {
+      const a = await this.service.create(this.model);
+      this.list.set([a, ...this.list()]);
+      form.resetForm(); this.model = { name: '' };
+    } catch { this.error.set('Create failed'); }
+    this.loading.set(false);
   }
-
-  add(f: NgForm): void {
-    this.ok = ''; this.err = '';
-    if (f.invalid || !this.form.name) {
-      this.err = 'Veuillez compléter le formulaire.'; return;
-    }
-    this.service.create(this.form).subscribe({
-      next: () => {
-        this.ok = 'Athlete ajouté(e).';
-        // إعادة ضبط النموذج
-        this.form = { name: '', age: null, sex: 'F', heightCm: null, weightKg: null };
-        f.resetForm({ sex: 'F' });
-        this.load();
-      },
-      error: () => this.err = 'Échec de création.'
-    });
+  startEdit(a: Athlete){ this.editingId.set(a.id!); this.model = { ...a }; window.scrollTo({top:0, behavior:'smooth'}); }
+  cancelEdit(form: NgForm){ this.editingId.set(null); form.resetForm(); this.model = { name: '' }; }
+  async update(form: NgForm){
+    const id = this.editingId(); if(!id) return;
+    this.loading.set(true);
+    try {
+      const a = await this.service.update(id, this.model);
+      this.list.set(this.list().map(x => x.id===id ? a : x));
+      this.cancelEdit(form);
+    } catch { this.error.set('Update failed'); }
+    this.loading.set(false);
   }
-
-  /** حذف سريع (مع تأكيد بسيط) */
-  remove(id?: number): void {
-    if (!id) { return; }
-    const ok = confirm('Supprimer cet(te) athlète ?');
-    if (!ok) { return; }
-
-    // حذف متفائل: نخفي من الواجهة مباشرة
-    const old = this.list.slice();
-    this.list = this.list.filter(a => a.id !== id);
-
-    this.service.delete(id).subscribe({
-      next: () => { this.ok = 'Supprimé.'; },
-      error: () => { this.err = 'Échec de suppression.'; this.list = old; }
-    });
-  }
-
-  /** حساب BMI للعرض إن لم يأتِ من الـ API */
-  bmiOf(a: Athlete): string {
-    const h = (a.heightCm ?? 0) / 100;
-    const w = (a.weightKg ?? 0);
-    if (!h || !w) { return '-'; }
-    const bmi = w / (h * h);
-    return bmi ? bmi.toFixed(1) : '-';
+  async remove(id:number){
+    if(!confirm('Delete this athlete?')) return;
+    this.loading.set(true);
+    try { await this.service.remove(id); this.list.set(this.list().filter(x=>x.id!==id)); }
+    catch { this.error.set('Delete failed'); }
+    this.loading.set(false);
   }
 }

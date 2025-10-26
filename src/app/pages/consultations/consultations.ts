@@ -1,73 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-
-interface Consultation {
-  id?: number;
-  athleteId: number;
-  topic: string;
-  message: string;
-  priority: 'LOW' | 'MEDIUM' | 'HIGH';
-}
-
-const API_BASE = 'http://localhost:8080/api/consultations';
+import { FormsModule, NgForm } from '@angular/forms';
+import { Consultation, ConsultationService } from '../../services/consultation';
+import { LangService } from '../../services/lang';
 
 @Component({
-  selector: 'app-consultations',
   standalone: true,
+  selector: 'app-consultations',
   imports: [CommonModule, FormsModule],
   templateUrl: './consultations.html',
-  styleUrls: ['./consultations.css']   //  مهم
+  styleUrl: './consultations.css'
 })
 export class ConsultationsComponent {
-  list: Consultation[] = [];
-  form: Consultation = { athleteId: 1, topic: '', message: '', priority: 'MEDIUM' };
-  ok = '';
-  err = '';
-  loading = false;
+  lang = inject(LangService);
+  t = (k:string)=>this.lang.t(k);
 
-  constructor(private http: HttpClient) {
-    this.load();
+  private store = inject(ConsultationService);
+  list = signal<Consultation[]>([]);
+  model: Consultation = { name: '', date: new Date().toISOString().slice(0,16) };
+
+  async ngOnInit(){ this.list.set(await this.store.list()); }
+
+  async save(f: NgForm){
+    if(this.model.id){ const upd = await this.store.update(this.model.id, this.model); this.list.set(this.list().map(x=>x.id===upd.id?upd:x)); }
+    else { const c = await this.store.create(this.model); this.list.set([c, ...this.list()]); }
+    f.resetForm(); this.model = { name: '', date: new Date().toISOString().slice(0,16) };
   }
 
-  load(): void {
-    this.loading = true;
-    this.http.get<any>(API_BASE).subscribe({
-      next: (res) => {
-        this.list = res.content ?? res; // يدعم Page أو Array
-        this.loading = false;
-      },
-      error: () => {
-        this.err = 'Échec du chargement (API).';
-        this.loading = false;
-      }
-    });
-  }
-
-  add(): void {
-    this.ok = ''; this.err = '';
-    if (!this.form.topic || !this.form.message) {
-      this.err = 'Veuillez remplir tous les champs.';
-      return;
-    }
-    this.http.post<Consultation>(API_BASE, this.form).subscribe({
-      next: () => {
-        this.ok = 'Consultation ajoutée.';
-        this.form = { athleteId: 1, topic: '', message: '', priority: 'MEDIUM' };
-        this.load();
-      },
-      error: () => {
-        this.err = 'Échec de création (API).';
-      }
-    });
-  }
-
-  remove(id?: number): void {
-    if (!id) return;
-    this.http.delete(`${API_BASE}/${id}`).subscribe({
-      next: () => this.load(),
-      error: () => this.err = 'Échec de suppression.'
-    });
-  }
+  edit(c: Consultation){ this.model = { ...c }; }
+  async remove(id:number){ if(confirm('Delete booking?')){ await this.store.remove(id); this.list.set(this.list().filter(x=>x.id!==id)); } }
 }

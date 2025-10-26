@@ -1,7 +1,57 @@
-<section class="hero">
-  <div class="hero-content">
-    <h1 class="hero-title">Stronger • Faster</h1>
-    <p class="hero-sub">Track athletes’ health & nutrition with an elegant, modern UI.</p>
-    <a routerLink="/athletes" class="enter-btn">Enter the App</a>
+<section class="hero" style="height:70vh; border-bottom-left-radius:24px; border-bottom-right-radius:24px; overflow:hidden;">
+  <video autoplay muted loop playsinline class="hero-video">
+    <source src="assets/hero.mp4" type="video/mp4" />
+  </video>
+  <div class="hero-overlay">
+    <div class="container">
+      <span class="kicker">{{ t('home.kicker') }}</span>
+      <h1>{{ t('home.title') }}</h1>
+      <p>{{ t('home.subtitle') }}</p>
+      <div style="display:flex; gap:12px; margin-top:16px;">
+        <!-- ✅ الزر الأول يفتح صفحة التغذية -->
+        <a class="btn btn-primary" routerLink="/nutrition">
+          {{ t('home.cta1') }}
+        </a>
+        <!-- ✅ الزر الثاني يفتح صفحة الاستشارات -->
+        <a class="btn btn-ghost" routerLink="/consultations">
+          {{ t('home.cta2') }}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <h2>{{ t('home.sections') }}</h2>
+    <div class="grid cols-3">
+      <!-- 🔹 كارت التغذية -->
+      <a class="card" routerLink="/nutrition">
+        <div class="card-img" style="background-image:url('assets/cards/macros.jpg')"></div>
+        <div class="card-body">
+          <span class="badge">Macros</span>
+          <h3>{{ t('card.macros.title') }}</h3>
+          <p>{{ t('card.macros.desc') }}</p>
+        </div>
+      </a>
+
+      <!-- 🔹 كارت الرياضيين -->
+      <a class="card" routerLink="/athletes">
+        <div class="card-img" style="background-image:url('assets/cards/athletes.jpg')"></div>
+        <div class="card-body">
+          <span class="badge">Team</span>
+          <h3>{{ t('card.athletes.title') }}</h3>
+          <p>{{ t('card.athletes.desc') }}</p>
+        </div>
+      </a>
+      <!-- 🔹 كارت الاستشارات -->
+      <a class="card" routerLink="/consultations">
+        <div class="card-img" style="background-image:url('assets/cards/consult.jpg')"></div>
+        <div class="card-body">
+          <span class="badge">Coach</span>
+          <h3>{{ t('card.consult.title') }}</h3>
+          <p>{{ t('card.consult.desc') }}</p>
+        </div>
+      </a>
+    </div>
   </div>
 </section>
