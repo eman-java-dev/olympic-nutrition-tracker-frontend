@@ -1,25 +1,40 @@
-<nav class="nav">
+<nav class="nav" role="navigation" aria-label="Main">
   <div class="container nav-inner">
-    <div class="brand"><a routerLink="/">NUTRITION TRACKER</a></div>
-
-    <div class="menu">
-      <a routerLink="/">{{ t('nav.home') }}</a>
-      <a routerLink="/athletes">{{ t('nav.athletes') }}</a>
-      <a routerLink="/nutrition">{{ t('nav.nutrition') }}</a>
-      <a routerLink="/consultations">{{ t('nav.consultations') }}</a>
-      <a routerLink="/coaches">{{ t('nav.coaches') }}</a>
+    <!-- Brand -->
+    <a class="brand shine" routerLink="/home" aria-label="Go to home">{{ t('brand') }}</a>
+    <!-- Menu -->
+    <div class="menu" role="menubar">
+      <a class="shine" routerLink="/home"           role="menuitem">{{ t('nav.home') }}</a>
+      <a class="shine" routerLink="/athletes"       role="menuitem">{{ t('nav.athletes') }}</a>
+      <a class="shine" routerLink="/nutrition"      role="menuitem">{{ t('nav.nutrition') }}</a>
+      <a class="shine" routerLink="/consultations"  role="menuitem">{{ t('nav.consultations') }}</a>
+      <a class="shine" routerLink="/coaches"        role="menuitem">{{ t('nav.coaches') }}</a>
     </div>
-
+    <!-- Lang + Sign in -->
     <div style="display:flex; gap:8px; align-items:center">
-      <button class="btn btn-ghost" (click)="switch('en')" [disabled]="current() === 'en'">EN</button>
-      <button class="btn btn-ghost" (click)="switch('fr')" [disabled]="current() === 'fr'">FR</button>
-      <a class="btn btn-primary">{{ t('cta.start') }}</a>
+      <button
+        type="button"
+        class="btn btn-ghost"
+        (click)="switch('en')"
+        [disabled]="current() === 'en'"
+        [attr.aria-pressed]="current() === 'en'">
+        EN
+      </button>
+      <button
+        type="button"
+        class="btn btn-ghost"
+        (click)="switch('fr')"
+        [disabled]="current() === 'fr'"
+        [attr.aria-pressed]="current() === 'fr'">
+        FR
+      </button>
+      <a class="btn btn-primary shine" routerLink="/signin" aria-label="Sign in">
+        {{ t('nav.start') }}
+      </a>
     </div>
   </div>
 </nav>
-
 <router-outlet></router-outlet>
-
-<footer class="footer">
-  <div class="container">© {{year}} Nutrition Tracker</div>
+<footer class="footer" role="contentinfo">
+  <div class="container">© {{ year }} {{ t('brand') }}</div>
 </footer>

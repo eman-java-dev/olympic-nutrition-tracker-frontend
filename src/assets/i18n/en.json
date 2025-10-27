@@ -1,0 +1,42 @@
+{
+    "nav": {
+      "start": "Start",
+      "home": "Home",
+      "athletes": "Athletes",
+      "nutrition": "Nutrition",
+      "consultations": "Consultations",
+      "coaches": "Coaches"
+    },
+    "common": {
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "actions": "Actions",
+      "notes": "Notes",
+      "date": "Date"
+    },
+    "nut": {
+      "title": "NUTRITION",
+      "subtitle": "Log meals locally with macro summary.",
+      "cal": "Calories",
+      "p": "P",
+      "c": "C",
+      "f": "F",
+      "placeholders": {
+        "date": "Date",
+        "cal": "Calories",
+        "p": "Protein (g)",
+        "c": "Carbs (g)",
+        "f": "Fat (g)",
+        "notes": "Notes"
+      }
+    },
+    "ath": {
+      "kicker": "ATHLETES",
+      "name": "Name*",
+      "age": "Age",
+      "weight": "Weight (kg)",
+      "height": "Height (cm)"
+    }
+  }
+  

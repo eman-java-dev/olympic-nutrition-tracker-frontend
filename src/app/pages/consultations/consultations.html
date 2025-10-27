@@ -1,31 +1,71 @@
-<div class="container section">
-  <h2>{{ t('consult.title') }}</h2>
-  <p style="color:var(--muted)">{{ t('consult.help') }}</p>
-
-  <form #f="ngForm" (ngSubmit)="save(f)" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:16px 0;">
-    <input class="input" name="name" [(ngModel)]="model.name" [placeholder]="t('consult.name')" required />
-    <input class="input" type="datetime-local" name="date" [(ngModel)]="model.date" [placeholder]="t('consult.when')" required />
-    <input class="input" name="note" [(ngModel)]="model.note" [placeholder]="t('consult.note')" />
-    <div style="grid-column:1/-1">
-      <button class="btn btn-primary" type="submit">{{ t('consult.book') }}</button>
-    </div>
-  </form>
-
-  <div class="card">
-    <div class="card-body">
-      <table class="table">
-        <thead><tr><th>{{ t('consult.name') }}</th><th>{{ t('consult.when') }}</th><th>{{ t('consult.note') }}</th><th>Actions</th></tr></thead>
-        <tbody>
-          <tr *ngFor="let b of list()">
-            <td>{{b.name}}</td><td>{{b.date}}</td><td>{{b.note || '—'}}</td>
-            <td class="actions">
-              <button class="btn btn-ghost" (click)="edit(b)">{{ t('coaches.update') }}</button>
-              <button class="btn btn-ghost" (click)="remove(b.id!)">Delete</button>
-            </td>
-          </tr>
-          <tr *ngIf="!list()?.length"><td colspan="4" style="color:var(--muted)">{{ t('consult.noData') }}</td></tr>
-        </tbody>
-      </table>
+<section class="hero" style="height:40vh; border-bottom-left-radius:24px; border-bottom-right-radius:24px; overflow:hidden;">
+  <video autoplay muted loop playsinline class="hero-video">
+    <source src="assets/side.mp4" type="video/mp4" />
+  </video>
+  <div class="hero-overlay">
+    <div class="container">
+      <span class="kicker">CONSULTATIONS</span>
+      <h1>Ajouter / Modifier / Supprimer — local pour l’instant, API plus tard.</h1>
     </div>
   </div>
-</div>
+</section>
+<section class="section">
+  <div class="container">
+    <!-- الفورم بنسق موحد مثل صفحة Coaches -->
+    <form #f="ngForm" (ngSubmit)="editingId() ? update(f) : create(f)"
+          class="form-dark"
+          style="display:grid; grid-template-columns: 1.2fr 2.5fr 160px 160px auto; gap:12px;">
+      
+      <input class="input is-dark" type="datetime-local" name="date" [(ngModel)]="model.date" />
+
+      <input class="input is-dark" type="text" name="notes"
+             [(ngModel)]="model.notes" [placeholder]="t('consult.notes')" />
+
+      <input class="input is-dark" type="number" name="athleteId"
+             [(ngModel)]="model.athleteId" [placeholder]="t('consult.athleteId')" />
+
+      <input class="input is-dark" type="number" name="coachId"
+             [(ngModel)]="model.coachId" [placeholder]="t('consult.coachId')" />
+
+      <button class="btn btn-primary shine btn-yellow" type="submit">
+        {{ t('common.add') }}
+      </button>
+    </form>
+    <div style="height:12px"></div>
+
+    <!--  الجدول بدون تغيير -->
+    <div class="card">
+      <div class="card-body">
+        <table style="width:100%; border-collapse:collapse;">
+          <thead style="background:#1f3f8a; color:#fff">
+            <tr>
+              <th style="text-align:left; padding:12px">#</th>
+              <th style="text-align:left; padding:12px">Date</th>
+              <th style="text-align:left; padding:12px">Notes</th>
+              <th style="text-align:left; padding:12px">Athlète ID</th>
+              <th style="text-align:left; padding:12px">Coach ID</th>
+              <th style="text-align:left; padding:12px">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of list(); let i = index" style="border-bottom:1px solid var(--border)">
+              <td style="padding:10px">{{ i+1 }}</td>
+              <td style="padding:10px">{{ c.date }}</td>
+              <td style="padding:10px">{{ c.notes || '—' }}</td>
+              <td style="padding:10px">{{ c.athleteId || '—' }}</td>
+              <td style="padding:10px">{{ c.coachId || '—' }}</td>
+              <td style="padding:10px; display:flex; gap:8px">
+                <button class="btn btn-ghost" (click)="startEdit(c)">Éditer</button>
+                <button class="btn btn-ghost" (click)="remove(c.id!)">Supprimer</button>
+              </td>
+            </tr>
+            <tr *ngIf="!list().length">
+              <td colspan="6" style="text-align:center; padding:16px; color:var(--muted)">Pas de données.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>

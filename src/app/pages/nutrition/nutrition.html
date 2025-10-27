@@ -1,47 +1,107 @@
-<div class="container section">
-  <h2>{{ t('nutrition.title') }}</h2>
-  <p style="color:var(--muted)">{{ t('nutrition.help') }}</p>
-
-  <form #f="ngForm" (ngSubmit)="save(f)" style="display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin:16px 0;">
-    <input class="input" type="date" name="date" [(ngModel)]="model.date" required />
-    <input class="input" type="number" name="calories" [(ngModel)]="model.calories" [placeholder]="t('nutrition.cal')" required />
-    <input class="input" type="number" name="protein" [(ngModel)]="model.protein" [placeholder]="t('nutrition.p')" />
-    <input class="input" type="number" name="carbs" [(ngModel)]="model.carbs" [placeholder]="t('nutrition.c')" />
-    <input class="input" type="number" name="fat" [(ngModel)]="model.fat" [placeholder]="t('nutrition.f')" />
-    <input class="input" name="notes" [(ngModel)]="model.notes" [placeholder]="t('nutrition.notes')" />
-    <div class="actions" style="grid-column:1/-1">
-      <button class="btn btn-primary" type="submit">{{ editingId() ? t('nutrition.update') : t('nutrition.add') }}</button>
-      <button class="btn btn-ghost" type="button" *ngIf="editingId()" (click)="editingId.set(null); f.resetForm()">{{ t('nutrition.cancel') }}</button>
+<section class="hero" style="height:40vh; border-bottom-left-radius:24px; border-bottom-right-radius:24px; overflow:hidden;">
+  <video autoplay muted loop playsinline class="hero-video">
+    <source src="assets/side.mp4" type="video/mp4" />
+  </video>
+  <div class="hero-overlay">
+    <div class="container">
+      <span class="kicker">{{ t('nutrition.title') }}</span>
+      <h1>{{ t('nutrition.help') }}</h1>
     </div>
-  </form>
-
-  <div class="card" style="margin-bottom:16px;">
-    <div class="card-body">
-      <span class="badge">{{ t('nutrition.summary') }}</span>
-      <div style="display:flex; gap:16px; margin-top:8px;">
-        <div>Calories: <b>{{ totalCalories }}</b></div>
-        <div>P: <b>{{ totals.p }}g</b></div>
-        <div>C: <b>{{ totals.c }}g</b></div>
-        <div>F: <b>{{ totals.f }}g</b></div>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <!-- FORM -->
+    <form #f="ngForm"
+          (ngSubmit)="editingId() ? update(f) : create(f)"
+          style="display: grid; grid-template-columns: 160px 100px 100px 100px 100px 1fr 120px; gap: 12px; align-items: center;"> 
+      <!-- Date -->
+      <input class="input"
+             type="date"
+             name="date"
+             [(ngModel)]="model.date"
+             [placeholder]="t('nutrition.date')" />
+      <!-- Calories -->
+      <input class="input"
+             type="number"
+             name="calories"
+             [(ngModel)]="model.calories"
+             [placeholder]="t('nutrition.cal')" />
+      <!-- Protein -->
+      <input class="input"
+             type="number"
+             name="protein"
+             [(ngModel)]="model.protein"
+             [placeholder]="t('nutrition.p')" />
+      <!-- Carbs -->
+      <input class="input"
+             type="number"
+             name="carbs"
+             [(ngModel)]="model.carbs"
+             [placeholder]="t('nutrition.c')" />
+      <!-- Fat -->
+      <input class="input"
+             type="number"
+             name="fat"
+             [(ngModel)]="model.fat"
+             [placeholder]="t('nutrition.f')" />
+      <!-- Notes -->
+      <input class="input"
+             name="notes"
+             [(ngModel)]="model.notes"
+             [placeholder]="t('nutrition.notes')" />
+      <!-- Add button -->
+      <button class="btn btn-primary shine" type="submit">
+        {{ editingId() ? t('nutrition.update') : t('nutrition.add') }}
+      </button>
+    </form>
+    <div style="height:20px"></div>
+    <!-- Résumé Section -->
+    <div style="margin-bottom: 16px;">
+      <button class="btn btn-ghost">{{ t('nutrition.summary') }}</button>
+<span style="margin-left: 12px; color:#fff;">
+  Calories: {{ totalCalories }} |
+  P: {{ totals.p }}g |
+  C: {{ totals.c }}g |
+  F: {{ totals.f }}g
+</span>
+    </div>
+    <!-- TABLE -->
+    <div class="card">
+      <div class="card-body">
+        <table style="width:100%; border-collapse:collapse;">
+          <thead style="background:#1f3f8a; color:#fff">
+            <tr>
+              <th style="padding:12px; text-align:left">{{ t('nutrition.date') }}</th>
+              <th style="padding:12px; text-align:left">{{ t('nutrition.cal') }}</th>
+              <th style="padding:12px; text-align:left">{{ t('nutrition.p') }}</th>
+              <th style="padding:12px; text-align:left">{{ t('nutrition.c') }}</th>
+              <th style="padding:12px; text-align:left">{{ t('nutrition.f') }}</th>
+              <th style="padding:12px; text-align:left">{{ t('nutrition.notes') }}</th>
+              <th style="padding:12px; text-align:left">{{ t('athletes.actions') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let n of list(); let i = index" style="border-bottom:1px solid var(--border)">
+              <td style="padding:10px">{{ n.date }}</td>
+              <td style="padding:10px">{{ n.calories }}</td>
+              <td style="padding:10px">{{ n.protein }}</td>
+              <td style="padding:10px">{{ n.carbs }}</td>
+              <td style="padding:10px">{{ n.fat }}</td>
+              <td style="padding:10px">{{ n.notes }}</td>
+              <td style="padding:10px; display:flex; gap:8px">
+                <button class="btn btn-ghost shine" (click)="startEdit(n)">{{ t('nutrition.update') }}</button>
+                <button class="btn btn-ghost shine" (click)="remove(n.id!)">{{ t('athletes.cancel') }}</button>
+              </td>
+            </tr>
+            <tr *ngIf="!list().length">
+              <td colspan="7" style="text-align:center; padding:16px; color:var(--muted)">
+                {{ t('athletes.noData') }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
-
-  <div class="card">
-    <div class="card-body">
-      <table class="table">
-        <thead><tr><th>{{ t('nutrition.date') }}</th><th>{{ t('nutrition.cal') }}</th><th>P</th><th>C</th><th>F</th><th>{{ t('nutrition.notes') }}</th><th>Actions</th></tr></thead>
-        <tbody>
-          <tr *ngFor="let e of list()">
-            <td>{{e.date}}</td><td>{{e.calories}}</td><td>{{e.protein}}</td><td>{{e.carbs}}</td><td>{{e.fat}}</td><td>{{e.notes || '—'}}</td>
-            <td class="actions">
-              <button class="btn btn-ghost" (click)="edit(e)">{{ t('nutrition.update') }}</button>
-              <button class="btn btn-ghost" (click)="remove(e.id!)">Delete</button>
-            </td>
-          </tr>
-          <tr *ngIf="!list()?.length"><td colspan="7" style="color:var(--muted)">—</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+</section>

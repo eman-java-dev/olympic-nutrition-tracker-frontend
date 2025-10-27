@@ -1,0 +1,42 @@
+{
+    "nav": {
+      "start": "Commencer",
+      "home": "Accueil",
+      "athletes": "Athlètes",
+      "nutrition": "Nutrition",
+      "consultations": "Consultations",
+      "coaches": "Coachs"
+    },
+    "common": {
+      "add": "Ajouter",
+      "edit": "Éditer",
+      "delete": "Supprimer",
+      "actions": "Actions",
+      "notes": "Notes",
+      "date": "Date"
+    },
+    "nut": {
+      "title": "NUTRITION",
+      "subtitle": "Consignez localement les repas avec résumé des macros.",
+      "cal": "Calories",
+      "p": "P",
+      "c": "C",
+      "f": "F",
+      "placeholders": {
+        "date": "Date",
+        "cal": "Calories",
+        "p": "Protéines (g)",
+        "c": "Glucides (g)",
+        "f": "Lipides (g)",
+        "notes": "Notes"
+      }
+    },
+    "ath": {
+      "kicker": "ATHLÈTES",
+      "name": "Nom*",
+      "age": "Âge",
+      "weight": "Poids (kg)",
+      "height": "Taille (cm)"
+    }
+  }
+  

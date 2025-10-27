@@ -23,10 +23,60 @@ input:focus, textarea:focus, select:focus{ border-color:#3b82f6; box-shadow:0 0 
 }
 .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 8px 18px rgba(37,99,235,.25); }
 .btn-primary:active{ transform:scale(.97); }
-
 @media (max-width:720px){
   .form-grid{ grid-template-columns: 1fr; }
   .span-2{ grid-column:auto; }
   .actions{ justify-self:stretch; }
   .btn-primary{ width:100%; }
+}
+/* === Dark form like Coaches === */
+.form-dark .input,
+.input.is-dark {
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #16171a;
+  color: #e9eef6;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+/* placeholder */
+.form-dark .input::placeholder,
+.input.is-dark::placeholder {
+  color: rgba(233, 238, 246, 0.65);
+}
+/* focus state */
+.form-dark .input:focus,
+.input.is-dark:focus {
+  border-color: #3b5fb8;                 /* الأزرق الذي تستخدمينه للعناوين */
+  box-shadow: 0 0 0 3px rgba(59, 95, 184, 0.25);
+  background: #1b1d21;
+}
+/* datetime-local داخل الوضع الداكن */
+.form-dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(.8);
+}
+
+/* زر أصفر مطابق لCoaches */
+.btn-yellow {
+  height: 52px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 12px;
+  font-weight: 700;
+  background: #ffd60a;      /* الأصفر */
+  color: #111;
+  cursor: pointer;
+  transition: transform .06s ease, filter .2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-yellow:hover { filter: brightness(0.95); }
+.btn-yellow:active { transform: translateY(1px); }
+/* تحسين بسيط للموبايل بدون المساس بالستايل الأصلي */
+@media (max-width: 992px) {
+  .form-dark { grid-template-columns: 1fr 1fr !important; }
+  .form-dark .btn-yellow { grid-column: 1 / -1; justify-self: start; }
 }

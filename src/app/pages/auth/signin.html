@@ -1,0 +1,42 @@
+<section class="signin-hero">
+  <!-- خلفية (Gradient متحرك + صورة) -->
+  <div class="page-bg"></div>
+  <div class="container">
+    <!-- شعار لطيف -->
+    <div class="brandline">
+      <div class="logo">NT</div>
+      <div class="brandtext">Nutrition <span>Tracker</span></div>
+    </div>
+    <!-- البطاقة الزجاجية مع Parallax/Reflection -->
+    <article class="signin-card"
+             (mousemove)="onMove($event)"
+             (mouseleave)="onLeave()"
+             style="--rx:0deg; --ry:0deg;">
+      <span class="kicker">NUTRITION TRACKER</span>
+      <h1>Se connecter</h1>
+      <p class="lead">Entrez vos identifiants pour continuer.</p>
+
+      <form #f="ngForm" (ngSubmit)="login(f)" class="signin-form" novalidate>
+        <label class="label" for="username">Nom d'utilisateur</label>
+        <input id="username" class="input" type="text" name="username"
+               [(ngModel)]="username" placeholder="ex: coach01" required />
+
+        <label class="label" for="password">Mot de passe</label>
+        <input id="password" class="input" type="password" name="password"
+               [(ngModel)]="password" placeholder="••••••••" required />
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <span class="btn-content">
+              <span *ngIf="loading" class="spinner" aria-hidden="true"></span>
+              {{ loading ? 'Connexion…' : 'Se connecter' }}
+            </span>
+          </button>
+          <button type="button" class="btn btn-ghost" (click)="back()">
+            Retour
+          </button>
+        </div>
+      </form>
+    </article>
+  </div>
+</section>

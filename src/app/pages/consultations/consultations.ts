@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { Consultation, ConsultationService } from '../../services/consultation';
 import { LangService } from '../../services/lang';
 
@@ -11,22 +11,59 @@ import { LangService } from '../../services/lang';
   templateUrl: './consultations.html',
   styleUrl: './consultations.css'
 })
-export class ConsultationsComponent {
-  lang = inject(LangService);
+export class ConsultationsComponent implements OnInit {
+  private service = inject(ConsultationService);
+  private lang = inject(LangService);
   t = (k:string)=>this.lang.t(k);
 
-  private store = inject(ConsultationService);
-  list = signal<Consultation[]>([]);
-  model: Consultation = { name: '', date: new Date().toISOString().slice(0,16) };
+  list = () => this.service.list();
 
-  async ngOnInit(){ this.list.set(await this.store.list()); }
+  // ✅ نستخدم الحقول الصحيحة الموجودة في Consultation: date, notes, athleteId, coachId
+  model: Consultation = {
+    date: new Date().toISOString().slice(0,16),
+    notes: '',
+    athleteId: undefined,
+    coachId: undefined
+  };
 
-  async save(f: NgForm){
-    if(this.model.id){ const upd = await this.store.update(this.model.id, this.model); this.list.set(this.list().map(x=>x.id===upd.id?upd:x)); }
-    else { const c = await this.store.create(this.model); this.list.set([c, ...this.list()]); }
-    f.resetForm(); this.model = { name: '', date: new Date().toISOString().slice(0,16) };
+  editingId = signal<number|undefined>(undefined);
+
+  async ngOnInit() {
+    await this.service.init();
   }
 
-  edit(c: Consultation){ this.model = { ...c }; }
-  async remove(id:number){ if(confirm('Delete booking?')){ await this.store.remove(id); this.list.set(this.list().filter(x=>x.id!==id)); } }
+  startEdit(c: Consultation) {
+    this.editingId.set(c.id);
+    this.model = { ...c };
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async create(f: NgForm) {
+    await this.service.create({ ...this.model });
+    this.resetForm(f);
+  }
+
+  async update(f: NgForm) {
+    const id = this.editingId();
+    if (!id) return;
+    await this.service.update(id, { ...this.model });
+    this.resetForm(f);
+  }
+
+  async remove(id: number) {
+    if (!confirm('Supprimer ?')) return;
+    await this.service.remove(id);
+    if (this.editingId() === id) this.editingId.set(undefined);
+  }
+
+  resetForm(f: NgForm) {
+    f.resetForm();
+    this.model = {
+      date: new Date().toISOString().slice(0,16),
+      notes: '',
+      athleteId: undefined,
+      coachId: undefined
+    };
+    this.editingId.set(undefined);
+  }
 }
