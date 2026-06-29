@@ -5,10 +5,16 @@ import { environment } from '../../environments/environment';
 
 export interface Consultation {
   id?: number;
-  date: string;
-  notes?: string;
+  message: string;
+  scheduledAt: string;
   athleteId?: number;
   coachId?: number;
+  athleteName?: string;
+  coachName?: string;
+}
+
+interface PageResponse<T> {
+  content: T[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -20,10 +26,16 @@ export class ConsultationService {
 
   list = signal<Consultation[]>([]);
 
-  async init() { this.list.set(await this.listAll()); }
+  async init(): Promise<void> {
+    this.list.set(await this.listAll());
+  }
 
   async listAll(): Promise<Consultation[]> {
-    if (this.useApi) return await this.api.get<Consultation[]>('/consultations');
+    if (this.useApi) {
+      const page = await this.api.get<PageResponse<Consultation>>('/consultations');
+      return Array.isArray(page.content) ? page.content : [];
+    }
+
     return this.store.read<Consultation>(this.key);
   }
 
@@ -33,6 +45,7 @@ export class ConsultationService {
       this.list.set([...(this.list() || []), saved]);
       return saved;
     }
+
     const saved = this.store.upsert<Consultation>(this.key, c);
     this.list.set(this.store.read<Consultation>(this.key));
     return saved;
@@ -44,8 +57,9 @@ export class ConsultationService {
       this.list.set((this.list() || []).map(x => x.id === id ? saved : x));
       return saved;
     }
-    c.id = id;
-    const saved = this.store.upsert<Consultation>(this.key, c);
+
+    const updated: Consultation = { ...c, id };
+    const saved = this.store.upsert<Consultation>(this.key, updated);
     this.list.set(this.store.read<Consultation>(this.key));
     return saved;
   }
@@ -56,6 +70,7 @@ export class ConsultationService {
       this.list.set((this.list() || []).filter(x => x.id !== id));
       return;
     }
+
     this.store.remove(this.key, id);
     this.list.set(this.store.read<Consultation>(this.key));
   }

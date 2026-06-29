@@ -2,68 +2,155 @@
   <video autoplay muted loop playsinline class="hero-video">
     <source src="assets/side.mp4" type="video/mp4" />
   </video>
+
   <div class="hero-overlay">
     <div class="container">
       <span class="kicker">CONSULTATIONS</span>
-      <h1>Ajouter / Modifier / Supprimer — local pour l’instant, API plus tard.</h1>
+      <h1>Planifier et suivre les consultations entre coachs et athlètes.</h1>
     </div>
   </div>
 </section>
+
 <section class="section">
   <div class="container">
-    <!-- الفورم بنسق موحد مثل صفحة Coaches -->
-    <form #f="ngForm" (ngSubmit)="editingId() ? update(f) : create(f)"
-          class="form-dark"
-          style="display:grid; grid-template-columns: 1.2fr 2.5fr 160px 160px auto; gap:12px;">
-      
-      <input class="input is-dark" type="datetime-local" name="date" [(ngModel)]="model.date" />
 
-      <input class="input is-dark" type="text" name="notes"
-             [(ngModel)]="model.notes" [placeholder]="t('consult.notes')" />
+    <div *ngIf="error()" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
+      <div class="card-body" style="color:#ff4d4f;">
+        {{ error() }}
+      </div>
+    </div>
 
-      <input class="input is-dark" type="number" name="athleteId"
-             [(ngModel)]="model.athleteId" [placeholder]="t('consult.athleteId')" />
+    <form
+      #f="ngForm"
+      (ngSubmit)="save(f)"
+      class="consultation-form"
+    >
+      <input
+        class="input"
+        type="datetime-local"
+        name="scheduledAt"
+        [(ngModel)]="model.scheduledAt"
+        required
+      />
 
-      <input class="input is-dark" type="number" name="coachId"
-             [(ngModel)]="model.coachId" [placeholder]="t('consult.coachId')" />
+      <select
+        class="input"
+        name="athleteId"
+        [(ngModel)]="model.athleteId"
+        required
+      >
+        <option [ngValue]="undefined">Athlète</option>
+        <option *ngFor="let a of athletes()" [ngValue]="a.id">
+          {{ a.name }}
+        </option>
+      </select>
 
-      <button class="btn btn-primary shine btn-yellow" type="submit">
-        {{ t('common.add') }}
+      <select
+        class="input"
+        name="coachId"
+        [(ngModel)]="model.coachId"
+        required
+      >
+        <option [ngValue]="undefined">Coach</option>
+        <option *ngFor="let c of coaches()" [ngValue]="c.id">
+          {{ c.name }}
+        </option>
+      </select>
+
+      <input
+        class="input"
+        type="text"
+        name="message"
+        [(ngModel)]="model.message"
+        placeholder="Message"
+        required
+      />
+
+      <button class="btn btn-primary shine" type="submit" [disabled]="loading()">
+        {{ editingId() ? 'Mettre à jour' : 'Ajouter' }}
       </button>
     </form>
+
     <div style="height:12px"></div>
 
-    <!--  الجدول بدون تغيير -->
+    <button
+      class="btn btn-ghost shine"
+      type="button"
+      (click)="loadPageData()"
+      [disabled]="loading()"
+      style="margin-bottom:12px;"
+    >
+      Rafraîchir
+    </button>
+
     <div class="card">
       <div class="card-body">
-        <table style="width:100%; border-collapse:collapse;">
-          <thead style="background:#1f3f8a; color:#fff">
+
+        <div *ngIf="loading()" style="padding:12px; color:var(--muted)">
+          Chargement...
+        </div>
+
+        <table class="table consultation-table" *ngIf="!loading()">
+          <thead>
             <tr>
-              <th style="text-align:left; padding:12px">#</th>
-              <th style="text-align:left; padding:12px">Date</th>
-              <th style="text-align:left; padding:12px">Notes</th>
-              <th style="text-align:left; padding:12px">Athlète ID</th>
-              <th style="text-align:left; padding:12px">Coach ID</th>
-              <th style="text-align:left; padding:12px">Actions</th>
+              <th>#</th>
+              <th>Date</th>
+              <th>Message</th>
+              <th>Athlète</th>
+              <th>Coach</th>
+              <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            <tr *ngFor="let c of list(); let i = index" style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px">{{ i+1 }}</td>
-              <td style="padding:10px">{{ c.date }}</td>
-              <td style="padding:10px">{{ c.notes || '—' }}</td>
-              <td style="padding:10px">{{ c.athleteId || '—' }}</td>
-              <td style="padding:10px">{{ c.coachId || '—' }}</td>
-              <td style="padding:10px; display:flex; gap:8px">
-                <button class="btn btn-ghost" (click)="startEdit(c)">Éditer</button>
-                <button class="btn btn-ghost" (click)="remove(c.id!)">Supprimer</button>
+            <tr *ngFor="let c of list(); let i = index">
+              <td>{{ i + 1 }}</td>
+
+              <td>
+                {{ c.scheduledAt | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+
+              <td class="message-cell">
+                {{ c.message || '—' }}
+              </td>
+
+              <td>
+                {{ getAthleteName(c) }}
+              </td>
+
+              <td>
+                {{ getCoachName(c) }}
+              </td>
+
+              <td>
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <button
+                    class="btn btn-edit shine"
+                    type="button"
+                    (click)="startEdit(c)"
+                  >
+                    Modifier
+                  </button>
+
+                  <button
+                    class="btn btn-danger shine"
+                    type="button"
+                    (click)="remove(c.id)"
+                  >
+                    Supprimer
+                  </button>
+                </div>
               </td>
             </tr>
+
             <tr *ngIf="!list().length">
-              <td colspan="6" style="text-align:center; padding:16px; color:var(--muted)">Pas de données.</td>
+              <td colspan="6" style="text-align:center; padding:16px; color:var(--muted)">
+                Pas de données.
+              </td>
             </tr>
           </tbody>
         </table>
+
       </div>
     </div>
 

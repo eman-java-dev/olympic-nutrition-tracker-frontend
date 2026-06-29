@@ -1,8 +1,8 @@
-<!-- HERO -->
 <section class="hero" style="height:40vh; border-bottom-left-radius:24px; border-bottom-right-radius:24px; overflow:hidden;">
   <video autoplay muted loop playsinline class="hero-video">
     <source src="assets/side.mp4" type="video/mp4" />
   </video>
+
   <div class="hero-overlay">
     <div class="container">
       <span class="kicker">{{ t('athletes.title') }}</span>
@@ -10,82 +10,125 @@
     </div>
   </div>
 </section>
-<!-- CONTENT -->
+
 <section class="section">
   <div class="container">
-   <!-- FORM -->
-    <form #f="ngForm"
-          (ngSubmit)="editingId() ? update(f) : create(f)"
-          style="display:grid; grid-template-columns: 1fr 120px 140px 140px auto; gap:12px;">     
-      <!-- Name -->
-      <input class="input"
-             name="name"
-             [(ngModel)]="model.name"
-             [placeholder]="t('athletes.name')"
-             aria-label="Athlete name"
-             required />
-      <!-- Age -->
-      <input class="input"
-             type="number"
-             name="age"
-             [(ngModel)]="model.age"
-             [placeholder]="t('athletes.age')"
-             aria-label="Athlete age"
-             inputmode="numeric" />
-      <!-- Weight (kg) -->
-      <input class="input"
-             type="number"
-             name="weight"
-             [(ngModel)]="model.weight"
-             [placeholder]="t('athletes.weight')"
-             aria-label="Weight in kilograms"
-             inputmode="numeric" />
 
-      <!-- Height (cm) -->
-      <input class="input"
-             type="number"
-             name="height"
-             [(ngModel)]="model.height"
-             [placeholder]="t('athletes.height')"
-             aria-label="Height in centimeters"
-             inputmode="numeric" />
+    <div *ngIf="error()" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
+      <div class="card-body" style="color:#ff4d4f;">
+        {{ error() }}
+      </div>
+    </div>
 
-      <!-- Submit -->
-      <button class="btn btn-primary shine" type="submit">
+    <div
+      *ngIf="!canManageAthletes()"
+      class="card"
+      style="margin-bottom:12px; border-color:rgba(255,209,0,.35);"
+    >
+      <div class="card-body" style="color:var(--muted);">
+        Mode consultation : seuls les administrateurs peuvent ajouter, modifier ou supprimer des athlètes.
+      </div>
+    </div>
+
+    <form
+      *ngIf="canManageAthletes()"
+      #f="ngForm"
+      (ngSubmit)="save(f)"
+      style="display:grid; grid-template-columns: 1fr 120px 140px 140px auto; gap:12px;"
+    >
+      <input
+        class="input"
+        name="name"
+        [(ngModel)]="model.name"
+        [placeholder]="t('athletes.name')"
+        required
+      />
+
+      <input
+        class="input"
+        type="number"
+        name="age"
+        [(ngModel)]="model.age"
+        [placeholder]="t('athletes.age')"
+      />
+
+      <input
+        class="input"
+        type="number"
+        name="weight"
+        [(ngModel)]="model.weight"
+        [placeholder]="t('athletes.weight')"
+      />
+
+      <input
+        class="input"
+        type="number"
+        name="height"
+        [(ngModel)]="model.height"
+        [placeholder]="t('athletes.height')"
+      />
+
+      <button class="btn btn-primary shine" type="submit" [disabled]="loading()">
         {{ editingId() ? t('athletes.update') : t('athletes.add') }}
       </button>
     </form>
 
     <div style="height:12px"></div>
 
-    <!-- TABLE -->
+    <button
+      class="btn btn-ghost shine"
+      type="button"
+      (click)="loadAthletes()"
+      [disabled]="loading()"
+      style="margin-bottom:12px"
+    >
+      Rafraîchir
+    </button>
+
     <div class="card">
       <div class="card-body">
-        <table style="width:100%; border-collapse:collapse;">
-          <thead style="background:#1f3f8a; color:#fff">
+        <div *ngIf="loading()" style="padding:12px; color:var(--muted)">
+          Chargement...
+        </div>
+
+        <table class="table" *ngIf="!loading()">
+          <thead>
             <tr>
-              <th style="text-align:left; padding:12px">#</th>
-              <th style="text-align:left; padding:12px">{{ t('athletes.name') }}</th>
-              <th style="text-align:left; padding:12px">{{ t('athletes.age') }}</th>
-              <th style="text-align:left; padding:12px">{{ t('athletes.weight') }}</th>
-              <th style="text-align:left; padding:12px">{{ t('athletes.height') }}</th>
-              <th style="text-align:left; padding:12px">{{ t('athletes.actions') }}</th>
+              <th>#</th>
+              <th>{{ t('athletes.name') }}</th>
+              <th>{{ t('athletes.age') }}</th>
+              <th>{{ t('athletes.weight') }}</th>
+              <th>{{ t('athletes.height') }}</th>
+              <th *ngIf="canManageAthletes()">{{ t('athletes.actions') }}</th>
             </tr>
           </thead>
+
           <tbody>
-            <tr *ngFor="let a of list(); let i = index" style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px">{{ i+1 }}</td>
-              <td style="padding:10px">{{ a.name }}</td>
-              <td style="padding:10px">{{ a.age || '—' }}</td>
-              <td style="padding:10px">{{ a.weight || '—' }}</td>
-              <td style="padding:10px">{{ a.height || '—' }}</td>
-              <td style="padding:10px; display:flex; gap:8px">
-                <button class="btn btn-ghost shine" (click)="startEdit(a)">{{ t('athletes.update') }}</button>
-                <button class="btn btn-ghost shine" (click)="remove(a.id!)">{{ t('athletes.cancel') }}</button>
+            <tr *ngFor="let a of list(); let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ a.name }}</td>
+              <td>{{ a.age || '—' }}</td>
+              <td>{{ a.weight || '—' }}</td>
+              <td>{{ a.height || '—' }}</td>
+
+              <td *ngIf="canManageAthletes()">
+                <div style="display:flex; gap:8px; justify-content:center;">
+                  <button class="btn btn-edit shine" type="button" (click)="startEdit(a)">
+                    {{ t('athletes.update') }}
+                  </button>
+
+                  <button class="btn btn-danger shine" type="button" (click)="remove(a.id)">
+                    Supprimer
+                  </button>
+                </div>
               </td>
             </tr>
+
             <tr *ngIf="!list().length">
-              <td colspan="6" style="text-align:center; padding:16px; color:var(--muted)">
+              <td
+                [attr.colspan]="canManageAthletes() ? 6 : 5"
+                style="text-align:center; padding:16px; color:var(--muted)"
+              >
                 {{ t('athletes.noData') }}
               </td>
             </tr>
@@ -93,5 +136,6 @@
         </table>
       </div>
     </div>
+
   </div>
 </section>

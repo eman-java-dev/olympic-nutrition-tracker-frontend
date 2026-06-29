@@ -1,40 +1,43 @@
 <nav class="nav" role="navigation" aria-label="Main">
   <div class="container nav-inner">
-    <!-- Brand -->
-    <a class="brand shine" routerLink="/home" aria-label="Go to home">{{ t('brand') }}</a>
-    <!-- Menu -->
-    <div class="menu" role="menubar">
-      <a class="shine" routerLink="/home"           role="menuitem">{{ t('nav.home') }}</a>
-      <a class="shine" routerLink="/athletes"       role="menuitem">{{ t('nav.athletes') }}</a>
-      <a class="shine" routerLink="/nutrition"      role="menuitem">{{ t('nav.nutrition') }}</a>
-      <a class="shine" routerLink="/consultations"  role="menuitem">{{ t('nav.consultations') }}</a>
-      <a class="shine" routerLink="/coaches"        role="menuitem">{{ t('nav.coaches') }}</a>
+    <a class="brand shine" routerLink="/home">
+      {{ t('brand') }}
+    </a>
+
+    <div class="menu" role="menubar" *ngIf="auth.isAuthenticated()">
+      <a class="shine" routerLink="/home">Accueil</a>
+      <a class="shine" routerLink="/athletes">Athlètes</a>
+      <a class="shine" routerLink="/nutrition">Nutrition</a>
+      <a class="shine" routerLink="/consultations">Consultations</a>
+      <a class="shine" routerLink="/coaches">Coachs</a>
     </div>
-    <!-- Lang + Sign in -->
+
     <div style="display:flex; gap:8px; align-items:center">
-      <button
-        type="button"
-        class="btn btn-ghost"
-        (click)="switch('en')"
-        [disabled]="current() === 'en'"
-        [attr.aria-pressed]="current() === 'en'">
+      <button class="btn btn-ghost" type="button" (click)="switch('en')" [disabled]="current() === 'en'">
         EN
       </button>
-      <button
-        type="button"
-        class="btn btn-ghost"
-        (click)="switch('fr')"
-        [disabled]="current() === 'fr'"
-        [attr.aria-pressed]="current() === 'fr'">
+
+      <button class="btn btn-ghost" type="button" (click)="switch('fr')" [disabled]="current() === 'fr'">
         FR
       </button>
-      <a class="btn btn-primary shine" routerLink="/signin" aria-label="Sign in">
-        {{ t('nav.start') }}
+
+      <span *ngIf="auth.isAuthenticated()" style="color:var(--muted); font-size:13px;">
+        {{ auth.currentUser()?.username }} - {{ auth.currentUser()?.role }}
+      </span>
+
+      <a *ngIf="!auth.isAuthenticated()" class="btn btn-primary shine" routerLink="/signin">
+        Se connecter
       </a>
+
+      <button *ngIf="auth.isAuthenticated()" class="btn btn-danger shine" type="button" (click)="logout()">
+        Déconnexion
+      </button>
     </div>
   </div>
 </nav>
+
 <router-outlet></router-outlet>
+
 <footer class="footer" role="contentinfo">
   <div class="container">© {{ year }} {{ t('brand') }}</div>
 </footer>

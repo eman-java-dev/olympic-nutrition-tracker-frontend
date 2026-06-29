@@ -2,34 +2,137 @@
   <h2>{{ t('coaches.title') }}</h2>
   <p style="color:var(--muted)">{{ t('coaches.help') }}</p>
 
-  <form #f="ngForm" (ngSubmit)="save(f)" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:16px 0;">
-    <input class="input" name="name" [(ngModel)]="model.name" [placeholder]="t('coaches.name')" required />
-    <input class="input" name="specialty" [(ngModel)]="model.specialty" [placeholder]="t('coaches.spec')" />
-    <input class="input" name="email" [(ngModel)]="model.email" [placeholder]="t('coaches.email')" type="email" />
-    <input class="input" name="phone" [(ngModel)]="model.phone" [placeholder]="t('coaches.phone')" />
-    <div class="actions" style="grid-column:1/-1">
-      <button class="btn btn-primary" type="submit">{{ editingId() ? t('coaches.update') : t('coaches.add') }}</button>
-      <button class="btn btn-ghost" *ngIf="editingId()" type="button" (click)="cancel(f)">{{ t('coaches.cancel') }}</button>
+  <div *ngIf="error()" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
+    <div class="card-body" style="color:#ff4d4f;">
+      {{ error() }}
     </div>
+  </div>
+
+  <div
+    *ngIf="!canManageCoaches()"
+    class="card"
+    style="margin-bottom:12px; border-color:rgba(255,209,0,.35);"
+  >
+    <div class="card-body" style="color:var(--muted);">
+      Mode consultation : seuls les administrateurs peuvent ajouter, modifier ou supprimer des coachs.
+    </div>
+  </div>
+
+  <form
+    *ngIf="canManageCoaches()"
+    #f="ngForm"
+    (ngSubmit)="save(f)"
+    style="display:grid; grid-template-columns:repeat(4,1fr) auto; gap:12px; margin:16px 0; align-items:center;"
+  >
+    <input
+      class="input"
+      name="name"
+      [(ngModel)]="model.name"
+      [placeholder]="t('coaches.name')"
+      required
+    />
+
+    <input
+      class="input"
+      name="specialty"
+      [(ngModel)]="model.specialty"
+      [placeholder]="t('coaches.spec')"
+    />
+
+    <input
+      class="input"
+      name="email"
+      [(ngModel)]="model.email"
+      [placeholder]="t('coaches.email')"
+      type="email"
+    />
+
+    <input
+      class="input"
+      name="phone"
+      [(ngModel)]="model.phone"
+      [placeholder]="t('coaches.phone')"
+    />
+
+    <button class="btn btn-primary shine" type="submit" [disabled]="loading()">
+      {{ editingId() ? 'Mettre à jour' : t('coaches.add') }}
+    </button>
+
+    <button
+      class="btn btn-ghost shine"
+      *ngIf="editingId()"
+      type="button"
+      (click)="cancel(f)"
+    >
+      Annuler
+    </button>
   </form>
+
+  <button
+    class="btn btn-ghost shine"
+    type="button"
+    (click)="loadCoaches()"
+    [disabled]="loading()"
+    style="margin-bottom:12px;"
+  >
+    Rafraîchir
+  </button>
 
   <div class="card">
     <div class="card-body">
-      <table class="table">
-        <thead><tr><th>#</th><th>{{ t('coaches.name') }}</th><th>{{ t('coaches.spec') }}</th><th>{{ t('coaches.email') }}</th><th>{{ t('coaches.phone') }}</th><th>Actions</th></tr></thead>
+      <div *ngIf="loading()" style="padding:12px; color:var(--muted)">
+        Chargement...
+      </div>
+
+      <table class="table" *ngIf="!loading()">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>{{ t('coaches.name') }}</th>
+            <th>{{ t('coaches.spec') }}</th>
+            <th>{{ t('coaches.email') }}</th>
+            <th>{{ t('coaches.phone') }}</th>
+            <th *ngIf="canManageCoaches()">Actions</th>
+          </tr>
+        </thead>
+
         <tbody>
           <tr *ngFor="let c of list(); index as i">
-            <td>{{i+1}}</td>
-            <td>{{c.name}}</td>
-            <td>{{c.specialty || '-'}}</td>
-            <td>{{c.email || '-'}}</td>
-            <td>{{c.phone || '-'}}</td>
-            <td class="actions">
-              <button class="btn btn-ghost" (click)="edit(c)">{{ t('coaches.update') }}</button>
-              <button class="btn btn-ghost" (click)="remove(c.id!)">Delete</button>
+            <td>{{ i + 1 }}</td>
+            <td>{{ c.name }}</td>
+            <td>{{ c.specialty || '-' }}</td>
+            <td>{{ c.email || '-' }}</td>
+            <td>{{ c.phone || '-' }}</td>
+
+            <td *ngIf="canManageCoaches()">
+              <div style="display:flex; gap:10px; align-items:center; justify-content:center;">
+                <button
+                  class="btn btn-edit shine"
+                  type="button"
+                  (click)="edit(c)"
+                >
+                  Modifier
+                </button>
+
+                <button
+                  class="btn btn-danger shine"
+                  type="button"
+                  (click)="remove(c.id)"
+                >
+                  Supprimer
+                </button>
+              </div>
             </td>
           </tr>
-          <tr *ngIf="!list()?.length"><td colspan="6" style="color:var(--muted)">{{ t('coaches.noData') }}</td></tr>
+
+          <tr *ngIf="!list().length">
+            <td
+              [attr.colspan]="canManageCoaches() ? 6 : 5"
+              style="color:var(--muted); text-align:center; padding:16px;"
+            >
+              {{ t('coaches.noData') }}
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>

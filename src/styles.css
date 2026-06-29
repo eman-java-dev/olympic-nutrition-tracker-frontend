@@ -1,262 +1,761 @@
 :root{
-  --bg:#0B0B0B; 
-  --text:#EDEDED; 
-  --muted:#A8A8A8; 
+  --bg:#0B0B0B;
+  --text:#EDEDED;
+  --muted:#A8A8A8;
   --card:#121212;
 
-  --accent:#FFD100; 
-  --accent-hover:#f0c500; 
+  --accent:#FFD100;
+  --accent-hover:#f0c500;
   --border:rgba(255,255,255,.08);
 
-  /* إضافات خفيفة للتحكم */
-  --input-bg:#101010;
-  --input-border:var(--border);
-  --focus:#f5c518;        /* نفس هوية الأصفر في الأزرار */
+  --input-bg:#1a1a1a;
+  --input-border:rgba(255,255,255,.18);
+  --focus:#f5c518;
   --shadow:0 6px 18px rgba(0,0,0,.25);
 }
 
-*{box-sizing:border-box}
-html,body{
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
   background:var(--bg);
   color:var(--text);
   margin:0;
-  font-family: Inter, Montserrat, system-ui, Arial;
+  font-family:Inter, Montserrat, system-ui, Arial;
 }
-a{color:inherit; text-decoration:none}
 
-/* Layout basics */
-.container{max-width:1140px; margin:0 auto; padding:0 16px;}
-.section{padding:56px 0}
-.section h2{font-size:28px; text-transform:uppercase; letter-spacing:.6px; margin:0 0 12px}
-.kicker{color:var(--accent); font-weight:800; letter-spacing:.6px; text-transform:uppercase; font-size:12px}
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+.container{
+  max-width:1140px;
+  margin:0 auto;
+  padding:0 16px;
+}
+
+.section{
+  padding:56px 0;
+}
+
+.section h2{
+  font-size:28px;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  margin:0 0 12px;
+}
+
+.kicker{
+  color:var(--accent);
+  font-weight:800;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+  font-size:12px;
+}
+
+/* Navbar */
+.nav{
+  position:sticky;
+  top:0;
+  z-index:40;
+  backdrop-filter:blur(8px);
+  background:rgba(11,11,11,.6);
+  border-bottom:1px solid var(--border);
+}
+
+.nav-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  height:64px;
+}
+
+.brand{
+  font-weight:900;
+  letter-spacing:.6px;
+}
+
+.menu{
+  display:flex;
+  gap:18px;
+  color:var(--muted);
+}
+
+.nav .menu a{
+  position:relative;
+  overflow:hidden;
+  padding:10px 14px;
+  border-radius:10px;
+  transition:background .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+
+.nav .menu a:hover{
+  background:rgba(255,255,255,.05);
+  box-shadow:0 6px 18px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+.nav .menu a::after{
+  content:"";
+  position:absolute;
+  left:-120%;
+  top:0;
+  bottom:0;
+  width:120%;
+  background:linear-gradient(115deg, transparent 20%, rgba(255,255,255,.35) 50%, transparent 80%);
+  transition:transform .6s ease;
+  transform:translateX(0);
+}
+
+.nav .menu a:hover::after{
+  transform:translateX(220%);
+}
+
+/* Hero */
+.hero{
+  position:relative;
+  padding:80px 0;
+  overflow:hidden;
+}
+
+.hero-video{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:0;
+  filter:brightness(55%);
+}
+
+.hero-overlay{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  height:100%;
+}
+
+.hero h1{
+  font-size:44px;
+  line-height:1.1;
+  text-transform:uppercase;
+  margin:0 0 10px;
+}
+
+.hero p{
+  color:var(--muted);
+  max-width:720px;
+}
+
+/* Cards */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  transition:transform .2s ease, border-color .2s;
+}
+
+.card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(255,255,255,.16);
+}
+
+.card-body{
+  padding:16px;
+  background:var(--card);
+}
+
+.card-img{
+  height:180px;
+  background:#000;
+  background-size:cover;
+  background-position:center;
+}
+
+/* Grid */
+.grid{
+  display:grid;
+  gap:16px;
+}
+
+.grid.cols-3{
+  grid-template-columns:repeat(3, 1fr);
+}
+
+@media (max-width:900px){
+  .grid.cols-3{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media (max-width:600px){
+  .grid.cols-3{
+    grid-template-columns:1fr;
+  }
+}
+
+/* Badge */
+.badge{
+  display:inline-block;
+  font-size:12px;
+  padding:4px 10px;
+  border-radius:999px;
+  background:rgba(255,209,0,.15);
+  color:var(--accent);
+  border:1px solid rgba(255,209,0,.25);
+}
 
 /* Buttons */
 .btn{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:12px 20px; border-radius:10px; 
-  border:1px solid transparent; font-weight:700; 
-  letter-spacing:.3px; cursor:pointer; transition:.15s ease-in-out;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:12px 20px;
+  border-radius:10px;
+  border:1px solid transparent;
+  font-weight:700;
+  letter-spacing:.3px;
+  cursor:pointer;
+  transition:.15s ease-in-out;
 }
-.btn-primary{background:var(--accent); color:#000;}
-.btn-primary:hover{background:var(--accent-hover)}
+
+.btn-primary{
+  background:var(--accent);
+  color:#000;
+}
+
+.btn-primary:hover{
+  background:var(--accent-hover);
+}
+
 .btn-ghost{
-  background:transparent; color:var(--text); 
-  border:1px solid var(--border)
+  background:transparent;
+  color:var(--text);
+  border:1px solid var(--border);
 }
+
 .btn-ghost:hover{
   background:rgba(255,255,255,.06);
   border-color:rgba(255,255,255,.18);
 }
-/* Inputs (موحّدة) */
+
+/* Inputs */
 .input,
 select.input,
 textarea.input{
   width:100%;
-  background:var(--input-bg);
-  border:1px solid var(--input-border);
-  color:#fff;
+  background-color:var(--input-bg) !important;
+  color:#ffffff !important;
+  border:1px solid var(--input-border) !important;
   border-radius:10px;
   padding:10px 12px;
   transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
 }
-/* Placeholder واضح */
+
 .input::placeholder,
 select.input::placeholder,
 textarea.input::placeholder{
-  color:rgba(255,255,255,.75);
+  color:rgba(255,255,255,.85) !important;
   opacity:1;
+  font-weight:500;
 }
-/* دعم WebKit و Edge/IE القديمين (تحسين ظهور placeholder) */
-.input::-webkit-input-placeholder{ color:rgba(255,255,255,.75); }
-.input:-ms-input-placeholder{ color:rgba(255,255,255,.75); }
-/* Focus */
+
+.input::-webkit-input-placeholder{
+  color:rgba(255,255,255,.85) !important;
+}
+
+.input:-ms-input-placeholder{
+  color:rgba(255,255,255,.85) !important;
+}
+
 .input:focus,
 select.input:focus,
 textarea.input:focus{
   outline:none;
-  border-color:var(--focus);
+  border-color:var(--focus) !important;
   box-shadow:0 0 0 3px rgba(245,197,24,.25);
 }
-/* Disabled */
+
 .input[disabled],
 select.input[disabled],
 textarea.input[disabled]{
-  opacity:.55; cursor:not-allowed;
+  opacity:.55;
+  cursor:not-allowed;
 }
-/* أزرار أرقام في number  */
+
+select.input,
+select.input option{
+  background-color:#1a1a1a;
+  color:#ffffff;
+}
+
 input[type=number].input{
-  appearance: textfield;           
-  -moz-appearance: textfield;      
-  -webkit-appearance: textfield;   
+  appearance:textfield;
+  -moz-appearance:textfield;
+  -webkit-appearance:textfield;
 }
+
 input[type=number].input::-webkit-outer-spin-button,
 input[type=number].input::-webkit-inner-spin-button{
-  -webkit-appearance:none; 
+  -webkit-appearance:none;
   margin:0;
 }
-/* تاريخ/وقت */
+
 input[type=date].input,
 input[type=datetime-local].input{
-  color:#fff;
+  color:#ffffff !important;
 }
-/* Top nav */
-.nav{
-  position:sticky; top:0; z-index:40; 
-  backdrop-filter: blur(8px); 
-  background:rgba(11,11,11,.6); 
-  border-bottom:1px solid var(--border)
+
+/* Tables unified */
+.table-card,
+.card.table-card{
+  width:100%;
+  max-width:100%;
+  background:var(--card) !important;
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow-x:auto;
+  overflow-y:hidden;
 }
-.nav-inner{display:flex; align-items:center; justify-content:space-between; height:64px}
-.brand{font-weight:900; letter-spacing:.6px}
-.menu{display:flex; gap:18px; color:var(--muted)}
-/* HERO */
-.hero{position:relative; padding:80px 0; overflow:hidden}
-.hero-video{
-  position:absolute; top:0; left:0; width:100%; height:100%; 
-  object-fit:cover; z-index:0; filter:brightness(55%);
+
+.table{
+  width:100%;
+  min-width:820px;
+  border-collapse:collapse;
+  table-layout:fixed;
+  background:var(--card) !important;
 }
-.hero-overlay{position:relative; z-index:1; display:flex; align-items:center; height:100%;}
-.hero h1{font-size:44px; line-height:1.1; text-transform:uppercase; margin:0 0 10px}
-.hero p{color:var(--muted); max-width:720px}
-/* Grid & cards */
-.grid{display:grid; gap:16px}
-.grid.cols-3{grid-template-columns:repeat(3, 1fr)}
-@media (max-width:900px){ .grid.cols-3{grid-template-columns:1fr 1fr}}
-@media (max-width:600px){ .grid.cols-3{grid-template-columns:1fr}}
-.card{
-  background:var(--card); border:1px solid var(--border); 
-  border-radius:16px; overflow:hidden; 
-  transition:transform .2s ease, border-color .2s
-}
-.card:hover{transform:translateY(-3px); border-color:rgba(255,255,255,.16)}
-.card-img{height:180px; background:#000; background-size:cover; background-position:center}
-.card-body{padding:16px}
-.badge{
-  display:inline-block; font-size:12px; padding:4px 10px; border-radius:999px; 
-  background:rgba(255,209,0,.15); color:var(--accent); 
-  border:1px solid rgba(255,209,0,.25)
-}
-/* جدول الهيدر الأزرق الموحد للصفحات */
-.table{width:100%; border-collapse:collapse;}
+
 .table thead th{
-  background:#1f3f8a; color:#fff; 
-  text-align:left; padding:12px; font-weight:700;
+  background:#1f3f8a;
+  color:#ffffff;
+  text-align:center;
+  padding:14px 12px;
+  font-weight:800;
+  white-space:nowrap;
 }
+
+.table tbody tr,
 .table tbody td{
-  padding:10px; border-bottom:1px solid var(--border);
+  background:var(--card) !important;
 }
-.table tr:last-child td{border-bottom:none;}
-.table .muted{color:var(--muted); text-align:center; padding:16px}
+
+.table tbody td{
+  padding:14px 12px;
+  border-bottom:1px solid var(--border);
+  color:var(--text) !important;
+  text-align:center;
+  vertical-align:middle;
+  white-space:normal;
+  word-break:break-word;
+  line-height:1.5;
+}
+
+.table tr:last-child td{
+  border-bottom:none;
+}
+
+.table .muted{
+  color:var(--muted) !important;
+  text-align:center;
+  padding:18px;
+}
+
+.table th:last-child,
+.table td:last-child{
+  width:260px;
+  min-width:260px;
+}
+
+.table td:last-child{
+  white-space:nowrap;
+}
+
+/* Actions */
+.btn-edit,
+.btn-danger{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:112px;
+  min-width:112px;
+  height:40px;
+  padding:0 12px;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:800;
+  cursor:pointer;
+  transition:all .25s ease;
+  margin:4px;
+}
+
+.btn-edit{
+  background:transparent;
+  color:#3b82f6 !important;
+  border:1px solid #3b82f6 !important;
+}
+
+.btn-edit:hover{
+  background:#2563eb !important;
+  color:#ffffff !important;
+  border-color:#2563eb !important;
+}
+
+.btn-danger{
+  background:transparent;
+  color:#ff4d4f !important;
+  border:1px solid #ff4d4f !important;
+}
+
+.btn-danger:hover{
+  background:#ff4d4f !important;
+  color:#ffffff !important;
+  border-color:#ff4d4f !important;
+}
+
+/* Consultation page */
+.consultation-form{
+  display:grid;
+  grid-template-columns:170px 180px 180px minmax(260px, 1fr) 130px;
+  gap:12px;
+  align-items:center;
+}
+
+.consultation-table{
+  width:100%;
+  min-width:0;
+  table-layout:fixed;
+}
+
+.consultation-table th:nth-child(1),
+.consultation-table td:nth-child(1){
+  width:60px;
+}
+
+.consultation-table th:nth-child(2),
+.consultation-table td:nth-child(2){
+  width:130px;
+}
+
+.consultation-table th:nth-child(3),
+.consultation-table td:nth-child(3){
+  width:auto;
+}
+
+.consultation-table th:nth-child(4),
+.consultation-table td:nth-child(4){
+  width:150px;
+}
+
+.consultation-table th:nth-child(5),
+.consultation-table td:nth-child(5){
+  width:150px;
+}
+
+.consultation-table th:nth-child(6),
+.consultation-table td:nth-child(6){
+  width:240px;
+}
+
+.message-cell{
+  max-width:100%;
+  white-space:normal !important;
+  word-break:break-word;
+  line-height:1.5;
+  text-align:left !important;
+}
+
+/* Force dark consultation cards if old HTML has white background */
+.consultation-table,
+.consultation-table tbody,
+.consultation-table tbody tr,
+.consultation-table tbody td{
+  background:var(--card) !important;
+  color:var(--text) !important;
+}
+
+.consultation-table .muted,
+.consultation-table td[colspan]{
+  background:var(--card) !important;
+  color:var(--muted) !important;
+}
+
 /* Footer */
-.footer .container{padding:24px 0; color:var(--muted); border-top:1px solid var(--border)}
-/* تحسين وضوح مربعات الإدخال كما في صفحة Coachs */
-.input,
-select.input,
-textarea.input {
-  background-color: #1a1a1a;        
-  color: #fff;                    
-  border: 1px solid rgba(255,255,255,0.15);
+.footer .container{
+  padding:24px 0;
+  color:var(--muted);
+  border-top:1px solid var(--border);
 }
-.input::placeholder {
-  color: rgba(255,255,255,0.8);   
-}
-.input:focus {
-  border-color: #FFD100;
-  box-shadow: 0 0 0 3px rgba(255,209,0,0.25);
-}
-/* 
-   Shine / Glassy hover effect
-   (أداة عامة نضيفها على أي عنصر)
-    */
-   .shine {
-    position: relative;
-    overflow: hidden;         /* مهم عشان اللمعة ما تطلع خارج العنصر */
-    will-change: transform;
-  }
-  
-  /* خط الضوء */
-  .shine::before{
-    content:"";
-    position: absolute;
-    inset: -40% auto -40% -60%;  /* يبدأ من اليسار خارج العنصر */
-    width: 45%;
-    transform: skewX(-20deg) translateX(-120%);
-    background: linear-gradient(
-       90deg,
-       transparent 0%,
-       rgba(255,255,255,.14) 45%,
-       rgba(255,255,255,.35) 50%,
-       rgba(255,255,255,.14) 55%,
-       transparent 100%
-    );
-    transition: transform .7s ease;
-    pointer-events: none;
-  }
-  
-  /* حركة اللمعة عند hover */
-  .shine:hover::before{
-    transform: skewX(-20deg) translateX(260%);
-  }
-  
-  /* لمسة رفع خفيفة عند المرور (اختياري) */
-  .shine:hover{
-    transform: translateY(-2px);
-  }
-  /* تأثير لطيف للروابط في النافبار عند المرور */
-  .nav .menu a{
-    position: relative;
-    padding: 10px 14px;
-    border-radius: 10px;
-    transition: background .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease;
-  }
-  .nav .menu a:hover{
-    background: rgba(255,255,255,.05);
-    box-shadow: 0 6px 18px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.08);
-  }
-  /* نقص الحركة للمستخدمين اللي يفضّلون تقليل الحركة */
-  @media (prefers-reduced-motion: reduce){
-    .shine, .shine::before, .nav .menu a { transition: none !important; }
-    .shine:hover { transform: none !important; }
-  }
-  /* ===== Shine effect for buttons and nav links ===== */
+
+/* Shine effect */
 .shine{
-  position: relative;
-  overflow: hidden;            /* حتى لا تخرج اللمعة خارج الزر */
-  isolation: isolate;
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  will-change:transform;
 }
+
+.shine::before{
+  content:"";
+  position:absolute;
+  inset:-40% auto -40% -60%;
+  width:45%;
+  transform:skewX(-20deg) translateX(-120%);
+  background:linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.14) 45%,
+    rgba(255,255,255,.35) 50%,
+    rgba(255,255,255,.14) 55%,
+    transparent 100%
+  );
+  transition:transform .7s ease;
+  pointer-events:none;
+}
+
+.shine:hover::before{
+  transform:skewX(-20deg) translateX(260%);
+}
+
+.shine:hover{
+  transform:translateY(-2px);
+}
+
 .shine::after{
   content:"";
-  position:absolute; inset:-120% -40%;
-  background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,.45) 50%, transparent 80%);
-  transform: translateX(-120%) rotate(8deg);
-  transition: transform .6s ease;
+  position:absolute;
+  inset:-120% -40%;
+  background:linear-gradient(115deg, transparent 20%, rgba(255,255,255,.45) 50%, transparent 80%);
+  transform:translateX(-120%) rotate(8deg);
+  transition:transform .6s ease;
   pointer-events:none;
-  mix-blend-mode: screen;      /* إحساس زجاجي خفيف */
+  mix-blend-mode:screen;
 }
+
 .shine:hover::after,
 .shine:focus-visible::after{
-  transform: translateX(120%) rotate(8deg);
+  transform:translateX(120%) rotate(8deg);
 }
-/* زجاجي خفيف عند التحويم */
+
 .btn.shine:hover{
-  backdrop-filter: blur(2px) saturate(120%);
-  -webkit-backdrop-filter: blur(2px) saturate(120%);
+  backdrop-filter:blur(2px) saturate(120%);
+  -webkit-backdrop-filter:blur(2px) saturate(120%);
 }
-/* نفس اللمعة للروابط في الـ Navbar */
-.nav .menu a{
-  position: relative; overflow: hidden;
+
+/* Responsive */
+@media (max-width:900px){
+  .consultation-form{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .consultation-form .btn,
+  .consultation-form button{
+    grid-column:1 / -1;
+  }
 }
-.nav .menu a::after{
-  content:""; position:absolute; left:-120%; top:0; bottom:0; width:120%;
-  background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,.35) 50%, transparent 80%);
-  transition: transform .6s ease; transform: translateX(0);
+
+@media (max-width:700px){
+  .nav-inner{
+    height:auto;
+    padding:12px 0;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .menu{
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px;
+  }
+
+  .hero h1{
+    font-size:32px;
+  }
+
+  .table{
+    min-width:760px;
+  }
 }
-.nav .menu a:hover::after{ transform: translateX(220%); }
-/* توحيد الـ focus ring الأصفر (لو غير مفعّل ببعض الحقول) */
-.input:focus{
-  outline:none;
-  border-color: var(--focus);
-  box-shadow: 0 0 0 3px rgba(245,197,24,.25);
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .shine,
+  .shine::before,
+  .shine::after,
+  .nav .menu a{
+    transition:none !important;
+  }
+
+  .shine:hover{
+    transform:none !important;
+  }
 }
-/* Placeholder أبيض وواضح مثل صفحة Coaches */
-.input::placeholder{ color:#fff; opacity:.85; font-weight:500; }
+
+
+
+/* =========================
+   Unified Pages Layout
+========================= */
+
+.section .container{
+  max-width:1140px;
+}
+
+/* Forms same width/style */
+form,
+.page-form,
+.consultation-form{
+  width:100%;
+  background:transparent;
+  margin-bottom:18px;
+}
+
+/* Unified table wrapper */
+.card,
+.table-card,
+.card.table-card{
+  width:100%;
+  max-width:100%;
+  background:#121212 !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+  border-radius:16px !important;
+  overflow:hidden !important;
+}
+
+/* Remove white cards anywhere */
+.card-body,
+.table-card,
+.table-card *,
+.card *,
+.consultation-table,
+.consultation-table *,
+.nutrition-table,
+.nutrition-table *{
+  background-color:transparent;
+}
+
+/* Unified tables */
+.table,
+table{
+  width:100% !important;
+  min-width:0 !important;
+  border-collapse:collapse !important;
+  table-layout:fixed !important;
+  background:#121212 !important;
+}
+
+.table thead th,
+table thead th{
+  background:#24458f !important;
+  color:#ffffff !important;
+  text-align:center !important;
+  padding:14px 10px !important;
+  font-weight:800 !important;
+  white-space:nowrap !important;
+}
+
+.table tbody tr,
+table tbody tr{
+  background:#121212 !important;
+}
+
+.table tbody td,
+table tbody td{
+  background:#121212 !important;
+  color:#EDEDED !important;
+  text-align:center !important;
+  vertical-align:middle !important;
+  padding:16px 10px !important;
+  border-bottom:1px solid rgba(255,255,255,.08) !important;
+  line-height:1.5 !important;
+  white-space:normal !important;
+  word-break:break-word !important;
+}
+
+.table tbody tr:last-child td,
+table tbody tr:last-child td{
+  border-bottom:none !important;
+}
+
+/* Empty row */
+.table .muted,
+table .muted,
+td[colspan]{
+  color:#A8A8A8 !important;
+  background:#121212 !important;
+  text-align:center !important;
+  padding:26px 12px !important;
+}
+
+/* Actions column */
+.table th:last-child,
+.table td:last-child,
+table th:last-child,
+table td:last-child{
+  width:240px !important;
+  min-width:240px !important;
+  white-space:nowrap !important;
+}
+
+/* Buttons unified */
+.btn-edit,
+.btn-danger{
+  width:112px !important;
+  min-width:112px !important;
+  height:40px !important;
+  margin:4px !important;
+}
+
+/* Nutrition table fix */
+.nutrition-table tbody tr,
+.nutrition-table tbody td{
+  background:#121212 !important;
+  color:#EDEDED !important;
+}
+
+/* Consultation fix */
+.consultation-table{
+  width:100% !important;
+  min-width:0 !important;
+}
+
+.consultation-table th,
+.consultation-table td{
+  background:#121212 !important;
+  color:#EDEDED !important;
+}
+
+/* Message column */
+.message-cell{
+  text-align:center !important;
+  max-width:100% !important;
+  white-space:normal !important;
+  word-break:break-word !important;
+}
+
+/* Forms unified */
+.input,
+select.input,
+textarea.input{
+  height:44px;
+}
+
+/* Mobile safety */
+@media (max-width:900px){
+  .table-card,
+  .card.table-card,
+  .card{
+    overflow-x:auto !important;
+  }
+
+  .table,
+  table{
+    min-width:760px !important;
+  }
+}

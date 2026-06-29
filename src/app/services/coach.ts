@@ -11,6 +11,10 @@ export interface Coach {
   phone?: string;
 }
 
+interface PageResponse<T> {
+  content: T[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class CoachService {
   private store = inject(StorageService);
@@ -20,19 +24,40 @@ export class CoachService {
 
   list = signal<Coach[]>([]);
 
-  async init() { this.list.set(await this.listAll()); }
+  async init(): Promise<void> {
+    this.list.set(await this.listAll());
+  }
 
   async listAll(): Promise<Coach[]> {
-    if (this.useApi) return await this.api.get<Coach[]>('/coaches');
+    if (this.useApi) {
+      const response = await this.api.get<Coach[] | PageResponse<Coach>>('/coaches');
+
+      if (Array.isArray(response)) {
+        return response;
+      }
+
+      return Array.isArray(response.content) ? response.content : [];
+    }
+
     return this.store.read<Coach>(this.key);
   }
 
   async create(c: Coach): Promise<Coach> {
     if (this.useApi) {
-      const saved = await this.api.post<Coach>('/coaches', c);
-      this.list.set([...(this.list() || []), saved]);
+      const payload: Coach = {
+        name: c.name,
+        specialty: c.specialty || '',
+        email: c.email || '',
+        phone: c.phone || ''
+      };
+
+      const saved = await this.api.post<Coach>('/coaches', payload);
+
+      await this.init();
+
       return saved;
     }
+
     const saved = this.store.upsert<Coach>(this.key, c);
     this.list.set(this.store.read<Coach>(this.key));
     return saved;
@@ -40,12 +65,22 @@ export class CoachService {
 
   async update(id: number, c: Coach): Promise<Coach> {
     if (this.useApi) {
-      const saved = await this.api.put<Coach>(`/coaches/${id}`, c);
-      this.list.set((this.list() || []).map(x => x.id === id ? saved : x));
+      const payload: Coach = {
+        name: c.name,
+        specialty: c.specialty || '',
+        email: c.email || '',
+        phone: c.phone || ''
+      };
+
+      const saved = await this.api.put<Coach>(`/coaches/${id}`, payload);
+
+      await this.init();
+
       return saved;
     }
-    c.id = id;
-    const saved = this.store.upsert<Coach>(this.key, c);
+
+    const updated: Coach = { ...c, id };
+    const saved = this.store.upsert<Coach>(this.key, updated);
     this.list.set(this.store.read<Coach>(this.key));
     return saved;
   }
@@ -53,9 +88,12 @@ export class CoachService {
   async remove(id: number): Promise<void> {
     if (this.useApi) {
       await this.api.delete<void>(`/coaches/${id}`);
-      this.list.set((this.list() || []).filter(x => x.id !== id));
+
+      await this.init();
+
       return;
     }
+
     this.store.remove(this.key, id);
     this.list.set(this.store.read<Coach>(this.key));
   }

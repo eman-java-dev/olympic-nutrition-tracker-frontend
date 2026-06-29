@@ -7,8 +7,14 @@ export interface Athlete {
   id?: number;
   name: string;
   age?: number;
+  gender?: string;
   weight?: number;
   height?: number;
+  bmi?: number;
+}
+
+interface PageResponse<T> {
+  content: T[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -20,19 +26,41 @@ export class AthleteService {
 
   list = signal<Athlete[]>([]);
 
-  async init() { this.list.set(await this.listAll()); }
+  async init(): Promise<void> {
+    this.list.set(await this.listAll());
+  }
 
   async listAll(): Promise<Athlete[]> {
-    if (this.useApi) return await this.api.get<Athlete[]>('/athletes');
+    if (this.useApi) {
+      const response = await this.api.get<Athlete[] | PageResponse<Athlete>>('/athletes');
+
+      if (Array.isArray(response)) {
+        return response;
+      }
+
+      return Array.isArray(response.content) ? response.content : [];
+    }
+
     return this.store.read<Athlete>(this.key);
   }
 
   async create(a: Athlete): Promise<Athlete> {
     if (this.useApi) {
-      const saved = await this.api.post<Athlete>('/athletes', a);
-      this.list.set([...(this.list() || []), saved]);
+      const payload: Athlete = {
+        name: a.name,
+        age: a.age,
+        gender: a.gender || '',
+        weight: a.weight,
+        height: a.height
+      };
+
+      const saved = await this.api.post<Athlete>('/athletes', payload);
+
+      await this.init();
+
       return saved;
     }
+
     const saved = this.store.upsert<Athlete>(this.key, a);
     this.list.set(this.store.read<Athlete>(this.key));
     return saved;
@@ -40,12 +68,23 @@ export class AthleteService {
 
   async update(id: number, a: Athlete): Promise<Athlete> {
     if (this.useApi) {
-      const saved = await this.api.put<Athlete>(`/athletes/${id}`, a);
-      this.list.set((this.list() || []).map(x => x.id === id ? saved : x));
+      const payload: Athlete = {
+        name: a.name,
+        age: a.age,
+        gender: a.gender || '',
+        weight: a.weight,
+        height: a.height
+      };
+
+      const saved = await this.api.put<Athlete>(`/athletes/${id}`, payload);
+
+      await this.init();
+
       return saved;
     }
-    a.id = id;
-    const saved = this.store.upsert<Athlete>(this.key, a);
+
+    const updated: Athlete = { ...a, id };
+    const saved = this.store.upsert<Athlete>(this.key, updated);
     this.list.set(this.store.read<Athlete>(this.key));
     return saved;
   }
@@ -53,9 +92,12 @@ export class AthleteService {
   async remove(id: number): Promise<void> {
     if (this.useApi) {
       await this.api.delete<void>(`/athletes/${id}`);
-      this.list.set((this.list() || []).filter(x => x.id !== id));
+
+      await this.init();
+
       return;
     }
+
     this.store.remove(this.key, id);
     this.list.set(this.store.read<Athlete>(this.key));
   }

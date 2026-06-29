@@ -1,40 +1,97 @@
 <section class="signin-hero">
-  <!-- خلفية (Gradient متحرك + صورة) -->
   <div class="page-bg"></div>
+
   <div class="container">
-    <!-- شعار لطيف -->
     <div class="brandline">
       <div class="logo">NT</div>
       <div class="brandtext">Nutrition <span>Tracker</span></div>
     </div>
-    <!-- البطاقة الزجاجية مع Parallax/Reflection -->
-    <article class="signin-card"
-             (mousemove)="onMove($event)"
-             (mouseleave)="onLeave()"
-             style="--rx:0deg; --ry:0deg;">
+
+    <article
+      class="signin-card"
+      (mousemove)="onMove($event)"
+      (mouseleave)="onLeave()"
+      style="--rx:0deg; --ry:0deg;"
+    >
       <span class="kicker">NUTRITION TRACKER</span>
+
       <h1>Se connecter</h1>
-      <p class="lead">Entrez vos identifiants pour continuer.</p>
+
+      <p class="lead">
+        Entrez vos identifiants pour continuer.
+      </p>
+
+      <div
+        *ngIf="error"
+        class="card"
+        style="margin-bottom:14px; border-color:#ff4d4f;"
+      >
+        <div class="card-body" style="color:#ff4d4f; padding:12px;">
+          {{ error }}
+        </div>
+      </div>
 
       <form #f="ngForm" (ngSubmit)="login(f)" class="signin-form" novalidate>
-        <label class="label" for="username">Nom d'utilisateur</label>
-        <input id="username" class="input" type="text" name="username"
-               [(ngModel)]="username" placeholder="ex: coach01" required />
+        <label class="label" for="username">
+          Nom d'utilisateur
+        </label>
 
-        <label class="label" for="password">Mot de passe</label>
-        <input id="password" class="input" type="password" name="password"
-               [(ngModel)]="password" placeholder="••••••••" required />
+        <input
+          id="username"
+          class="input"
+          type="text"
+          name="username"
+          [(ngModel)]="username"
+          placeholder="ex: admin"
+          required
+        />
+
+        <label class="label" for="password">
+          Mot de passe
+        </label>
+
+        <input
+          id="password"
+          class="input"
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          placeholder="ex: admin123"
+          required
+        />
 
         <div class="actions">
-          <button type="submit" class="btn btn-primary" [disabled]="loading">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="loading || !f.valid"
+          >
             <span class="btn-content">
-              <span *ngIf="loading" class="spinner" aria-hidden="true"></span>
+              <span
+                *ngIf="loading"
+                class="spinner"
+                aria-hidden="true"
+              ></span>
+
               {{ loading ? 'Connexion…' : 'Se connecter' }}
             </span>
           </button>
-          <button type="button" class="btn btn-ghost" (click)="back()">
+
+          <button
+            type="button"
+            class="btn btn-ghost"
+            (click)="back()"
+            [disabled]="loading"
+          >
             Retour
           </button>
+        </div>
+
+        <div style="margin-top:14px; color:var(--muted); font-size:13px; line-height:1.6;">
+          <div><strong>Comptes de démonstration :</strong></div>
+          <div>ADMIN : <strong>admin</strong> / <strong>admin123</strong></div>
+          <div>COACH : <strong>coach01</strong> / <strong>123456</strong></div>
+          <div>ATHLETE : <strong>athlete01</strong> / <strong>123456</strong></div>
         </div>
       </form>
     </article>
