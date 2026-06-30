@@ -1,71 +1,161 @@
-
 # 🥗 Olympic Nutrition Tracker
 
-A modern web application built with **Angular** and **Spring Boot** for tracking athletes’ nutrition, health, and performance during the Olympic Games.
+A modern web application built with **Angular 17** and **Spring Boot** for managing athletes, nutrition monitoring, consultations, and coach administration.
+
+The application includes a role-based authentication system with different permissions for administrators, coaches, and athletes.
 
 ---
 
-## 🌍 Features
+# 🌍 Features
 
-- 🧍‍♂️ Athlete Management (Add, Edit, Delete)
-- 🍽️ Nutrition Tracking (Calories, Proteins, Carbs, Fats)
-- 🧑‍⚕️ Medical Consultations
+- 🔐 Authentication (Sign In / Sign Out)
+- 👤 Role-Based Access Control (ADMIN, COACH, ATHLETE)
+- 🧍 Athlete Management
 - 🧑‍🏫 Coach Management
-- 🌐 Multilingual Interface (EN / FR)
-- 🎨 Modern UI with Bootstrap and video hero sections
+- 🍽️ Nutrition Tracking
+- 📅 Consultation Management
+- 🌐 Multilingual Interface (English / French)
+- 🎥 Modern UI with video hero sections
+- 📱 Responsive Design
 
 ---
 
-## 🖼️ Screenshots
+# 🔐 Demo Accounts
+
+| Username | Password | Role |
+|----------|----------|------|
+| admin | admin123 | ADMIN |
+| coach01 | 123456 | COACH |
+| athlete01 | 123456 | ATHLETE |
+
+---
+
+# 👥 Permissions
+
+### ADMIN
+- Full access to the application
+- Manage athletes
+- Manage coaches
+- Manage nutrition entries
+- Manage consultations
+
+### COACH
+- View athletes
+- Manage nutrition entries
+- Manage consultations
+- Read-only access to coaches
+
+### ATHLETE
+- View athletes
+- View nutrition data
+- View consultations
+- Read-only access to the application
+
+---
+
+# 🖼️ Screenshots
 
 ### 🏠 Home Page
+
 ![Home Page](https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend/blob/main/src/assets/screenshots/home-page.png?raw=true)
 
-### 🧍‍♀️ Athletes Management
-![Athletes Page](https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend/blob/main/src/assets/screenshots/athletes-page.png?raw=true)
-
-### 🍽️ Nutrition Dashboard
-![Nutrition Page](https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend/blob/main/src/assets/screenshots/nutrition-page.png?raw=true)
-
 ### 🔐 Sign In
-![Sign In Page](https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend/blob/main/src/assets/screenshots/signin-page.png?raw=true)
+
+![Sign In](https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend/blob/main/src/assets/screenshots/signin-page.png?raw=true)
+
+### 🧍 Athletes
+
+![Athletes](https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend/blob/main/src/assets/screenshots/athletes-page.png?raw=true)
+
+### 🍽️ Nutrition
+
+![Nutrition](https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend/blob/main/src/assets/screenshots/nutrition-page.png?raw=true)
 
 ---
 
-## ⚙️ Technologies
+# ⚙️ Technologies
 
-| Category | Tools / Frameworks |
-|-----------|--------------------|
-| Frontend | Angular 17, TypeScript, Bootstrap |
-| Backend | Spring Boot (Java 21), REST API |
+| Category | Technologies |
+|-----------|--------------|
+| Frontend | Angular 17, TypeScript |
+| UI | HTML5, CSS3, Bootstrap |
+| Backend | Spring Boot (Java 21) |
 | Database | MySQL |
-| Tools | Postman, GitHub, IntelliJ IDEA, VS Code |
+| Security | Spring Security (HTTP Basic) |
+| Version Control | Git & GitHub |
+| Tools | IntelliJ IDEA, VS Code, Postman |
 
 ---
 
-## 🚀 How to Run
+# 🚀 Installation
+
+Clone the repository
 
 ```bash
-# Clone the repository
 git clone https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend.git
+```
 
-# Navigate to the folder
+Go to the project
+
+```bash
 cd olympic-nutrition-tracker-frontend
+```
 
-# Install dependencies
+Install dependencies
+
+```bash
 npm install
+```
 
-# Run locally
+Run the application
+
+```bash
 ng serve -o
+```
 
-Languages
+The application runs at
 
-English 🇬🇧
+```
+http://localhost:4200
+```
 
-Français 🇫🇷
+---
 
-👩‍💻 Author
+# 🌐 Languages
 
-Eman Altohami
-🎓 Bachelor Java Developer – Studi 
-🌐 GitHub Profile
+- 🇬🇧 English
+- 🇫🇷 Français
+
+---
+
+# 🔒 Security
+
+The current version uses:
+
+- Spring Security
+- HTTP Basic Authentication
+- Role-Based Access Control (ADMIN / COACH / ATHLETE)
+
+JWT authentication and database user management are planned for a future version.
+
+---
+
+# 📌 Future Improvements
+
+- JWT Authentication
+- User Registration
+- Password Encryption
+- User Profile
+- Cloud Deployment
+- Unit & Integration Tests
+
+---
+
+# 👩‍💻 Author
+
+**Eman Altohami**
+
+Bachelor Java Developer – Studi
+
+GitHub:
+https://github.com/eman-java-dev
