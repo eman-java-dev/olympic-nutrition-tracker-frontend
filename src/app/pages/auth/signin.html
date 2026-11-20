@@ -13,27 +13,28 @@
       (mouseleave)="onLeave()"
       style="--rx:0deg; --ry:0deg;"
     >
-      <span class="kicker">NUTRITION TRACKER</span>
+      <span class="kicker">{{ t('brand') }}</span>
 
-      <h1>Se connecter</h1>
+      <h1>{{ t('auth.title') }}</h1>
 
       <p class="lead">
-        Entrez vos identifiants pour continuer.
+        {{ t('auth.lead') }}
       </p>
 
       <div
-        *ngIf="error"
+        *ngIf="error || sessionMessage as message"
+        role="alert"
         class="card"
         style="margin-bottom:14px; border-color:#ff4d4f;"
       >
         <div class="card-body" style="color:#ff4d4f; padding:12px;">
-          {{ error }}
+          {{ t(message) }}
         </div>
       </div>
 
       <form #f="ngForm" (ngSubmit)="login(f)" class="signin-form" novalidate>
         <label class="label" for="username">
-          Nom d'utilisateur
+          {{ t('auth.username') }}
         </label>
 
         <input
@@ -42,12 +43,12 @@
           type="text"
           name="username"
           [(ngModel)]="username"
-          placeholder="ex: admin"
+          autocomplete="username"
           required
         />
 
         <label class="label" for="password">
-          Mot de passe
+          {{ t('auth.password') }}
         </label>
 
         <input
@@ -56,7 +57,7 @@
           type="password"
           name="password"
           [(ngModel)]="password"
-          placeholder="ex: admin123"
+          autocomplete="current-password"
           required
         />
 
@@ -73,7 +74,7 @@
                 aria-hidden="true"
               ></span>
 
-              {{ loading ? 'Connexion…' : 'Se connecter' }}
+              {{ t(loading ? 'auth.loading' : 'auth.login') }}
             </span>
           </button>
 
@@ -81,18 +82,12 @@
             type="button"
             class="btn btn-ghost"
             (click)="back()"
-            [disabled]="loading"
+            [disabled]="loading || !canGoBack"
           >
-            Retour
+            {{ t('auth.back') }}
           </button>
         </div>
 
-        <div style="margin-top:14px; color:var(--muted); font-size:13px; line-height:1.6;">
-          <div><strong>Comptes de démonstration :</strong></div>
-          <div>ADMIN : <strong>admin</strong> / <strong>admin123</strong></div>
-          <div>COACH : <strong>coach01</strong> / <strong>123456</strong></div>
-          <div>ATHLETE : <strong>athlete01</strong> / <strong>123456</strong></div>
-        </div>
       </form>
     </article>
   </div>

@@ -1,4 +1,12 @@
-<section class="hero" style="height:40vh; border-bottom-left-radius:24px; border-bottom-right-radius:24px; overflow:hidden;">
+<section
+  class="hero"
+  style="
+    height: 40vh;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    overflow: hidden;
+  "
+>
   <video autoplay muted loop playsinline class="hero-video">
     <source src="assets/side.mp4" type="video/mp4" />
   </video>
@@ -14,19 +22,26 @@
 <section class="section">
   <div class="container">
 
-    <div *ngIf="error()" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
-      <div class="card-body" style="color:#ff4d4f;">
-        {{ error() }}
+    <ng-container *ngFor="let key of [error(), listError()]">
+      <div *ngIf="key" role="alert" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
+        <div class="card-body" style="color:#ff4d4f;">{{ t(key) }}</div>
       </div>
+    </ng-container>
+
+    <div *ngIf="success()" role="status" class="card" style="margin-bottom:12px;">
+      <div class="card-body">{{ t(success()) }}</div>
     </div>
 
     <div
       *ngIf="!canManageAthletes()"
       class="card"
-      style="margin-bottom:12px; border-color:rgba(255,209,0,.35);"
+      style="
+        margin-bottom: 12px;
+        border-color: rgba(255, 209, 0, 0.35);
+      "
     >
-      <div class="card-body" style="color:var(--muted);">
-        Mode consultation : seuls les administrateurs peuvent ajouter, modifier ou supprimer des athlètes.
+      <div class="card-body" style="color: var(--muted);">
+        {{ t('common.readOnlyAdmin') }}
       </div>
     </div>
 
@@ -34,91 +49,135 @@
       *ngIf="canManageAthletes()"
       #f="ngForm"
       (ngSubmit)="save(f)"
-      style="display:grid; grid-template-columns: 1fr 120px 140px 140px auto; gap:12px;"
+      style="
+        display: grid;
+        grid-template-columns: 1fr 120px 140px 140px auto;
+        gap: 12px;
+      "
     >
       <input
         class="input"
+        [attr.aria-label]="t('common.name')"
+        [placeholder]="t('common.name')"
         name="name"
         [(ngModel)]="model.name"
-        [placeholder]="t('athletes.name')"
+        maxlength="120"
         required
       />
 
       <input
         class="input"
         type="number"
+        [attr.aria-label]="t('athletes.age')"
+        [placeholder]="t('athletes.age')"
         name="age"
         [(ngModel)]="model.age"
-        [placeholder]="t('athletes.age')"
+        min="1"
+        max="120"
       />
 
       <input
         class="input"
         type="number"
+        [attr.aria-label]="t('athletes.weight')"
+        [placeholder]="t('athletes.weight')"
         name="weight"
         [(ngModel)]="model.weight"
-        [placeholder]="t('athletes.weight')"
+        min="1"
+        step="0.1"
       />
 
       <input
         class="input"
         type="number"
+        [attr.aria-label]="t('athletes.height')"
+        [placeholder]="t('athletes.height')"
         name="height"
         [(ngModel)]="model.height"
-        [placeholder]="t('athletes.height')"
+        min="1"
+        step="0.1"
       />
 
-      <button class="btn btn-primary shine" type="submit" [disabled]="loading()">
-        {{ editingId() ? t('athletes.update') : t('athletes.add') }}
+      <button
+        class="btn btn-primary shine"
+        type="submit"
+        [disabled]="loading() || f.invalid"
+      >
+        {{ t(editingId() !== undefined ? 'common.update' : 'common.add') }}
       </button>
+      <button *ngIf="editingId() !== undefined" class="btn btn-ghost shine" type="button"
+              (click)="resetForm(f)" [disabled]="loading()">
+        {{ t('common.cancel') }}
+      </button>
+      <small *ngIf="f.invalid && (f.dirty || f.submitted)" style="grid-column:1/-1;">
+        {{ t('validation.form') }}
+      </small>
     </form>
 
-    <div style="height:12px"></div>
+    <div style="height: 12px;"></div>
 
     <button
       class="btn btn-ghost shine"
       type="button"
       (click)="loadAthletes()"
       [disabled]="loading()"
-      style="margin-bottom:12px"
+      style="margin-bottom: 12px;"
     >
-      Rafraîchir
+      {{ t('common.refresh') }}
     </button>
 
     <div class="card">
       <div class="card-body">
-        <div *ngIf="loading()" style="padding:12px; color:var(--muted)">
-          Chargement...
+
+        <div
+          *ngIf="loading()"
+          style="padding: 12px; color: var(--muted);"
+        >
+          {{ t('common.loading') }}
         </div>
 
-        <table class="table" *ngIf="!loading()">
+        <table class="table" *ngIf="!loading() && page()">
           <thead>
             <tr>
               <th>#</th>
-              <th>{{ t('athletes.name') }}</th>
+              <th>{{ t('common.name') }}</th>
               <th>{{ t('athletes.age') }}</th>
               <th>{{ t('athletes.weight') }}</th>
               <th>{{ t('athletes.height') }}</th>
-              <th *ngIf="canManageAthletes()">{{ t('athletes.actions') }}</th>
+              <th *ngIf="canManageAthletes()">{{ t('common.actions') }}</th>
             </tr>
           </thead>
 
           <tbody>
-            <tr *ngFor="let a of list(); let i = index">
-              <td>{{ i + 1 }}</td>
-              <td>{{ a.name }}</td>
-              <td>{{ a.age || '—' }}</td>
-              <td>{{ a.weight || '—' }}</td>
-              <td>{{ a.height || '—' }}</td>
+            <tr *ngFor="let athlete of list(); let i = index">
+              <td>{{ (page()?.number ?? 0) * (page()?.size ?? 0) + i + 1 }}</td>
+              <td>{{ athlete.name }}</td>
+              <td>{{ athlete.age ?? '—' }}</td>
+              <td>{{ athlete.weight ?? '—' }}</td>
+              <td>{{ athlete.height ?? '—' }}</td>
 
               <td *ngIf="canManageAthletes()">
-                <div style="display:flex; gap:8px; justify-content:center;">
-                  <button class="btn btn-edit shine" type="button" (click)="startEdit(a)">
-                    {{ t('athletes.update') }}
+                <div
+                  style="
+                    display: flex;
+                    gap: 8px;
+                    justify-content: center;
+                  "
+                >
+                  <button
+                    class="btn btn-edit shine"
+                    type="button"
+                    (click)="startEdit(athlete)"
+                  >
+                    {{ t('common.edit') }}
                   </button>
 
-                  <button class="btn btn-danger shine" type="button" (click)="remove(a.id)">
-                    Supprimer
+                  <button
+                    class="btn btn-danger shine"
+                    type="button"
+                    (click)="remove(athlete.id)"
+                  >
+                    {{ t('common.delete') }}
                   </button>
                 </div>
               </td>
@@ -127,13 +186,23 @@
             <tr *ngIf="!list().length">
               <td
                 [attr.colspan]="canManageAthletes() ? 6 : 5"
-                style="text-align:center; padding:16px; color:var(--muted)"
+                style="
+                  text-align: center;
+                  padding: 16px;
+                  color: var(--muted);
+                "
               >
                 {{ t('athletes.noData') }}
               </td>
             </tr>
           </tbody>
         </table>
+        <app-list-pager
+          [page]="page()"
+          [disabled]="loading()"
+          (pageChange)="loadAthletes($event)"
+        ></app-list-pager>
+
       </div>
     </div>
 

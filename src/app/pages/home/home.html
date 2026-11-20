@@ -9,7 +9,7 @@
       <p>{{ t('home.subtitle') }}</p>
       <div style="display:flex; gap:12px; margin-top:16px;">
         <!-- ✅ الزر الأول يفتح صفحة التغذية -->
-        <a class="btn btn-primary shine" routerLink="/auth/signin">{{ t('home.cta1') }}</a>
+        <a class="btn btn-primary shine" routerLink="/nutrition">{{ t('home.cta1') }}</a>
 
         <!-- ✅ الزر الثاني يفتح صفحة الاستشارات -->
         <a class="btn btn-ghost" routerLink="/consultations">
@@ -24,10 +24,10 @@
     <h2>{{ t('home.sections') }}</h2>
     <div class="grid cols-3">
       <!-- 🔹 كارت التغذية -->
-      <a class="card shine" routerLink="/nutrition">>
+      <a class="card shine" routerLink="/nutrition">
         <div class="card-img" style="background-image:url('assets/cards/macros.jpg')"></div>
         <div class="card-body">
-          <span class="badge">Macros</span>
+          <span class="badge">{{ t('card.macros.badge') }}</span>
           <h3>{{ t('card.macros.title') }}</h3>
           <p>{{ t('card.macros.desc') }}</p>
         </div>
@@ -37,7 +37,7 @@
       <a class="card shine" routerLink="/athletes">
         <div class="card-img" style="background-image:url('assets/cards/athletes.jpg')"></div>
         <div class="card-body">
-          <span class="badge">Team</span>
+          <span class="badge">{{ t('card.athletes.badge') }}</span>
           <h3>{{ t('card.athletes.title') }}</h3>
           <p>{{ t('card.athletes.desc') }}</p>
         </div>
@@ -46,7 +46,7 @@
       <a class="card shine" routerLink="/consultations">
         <div class="card-img" style="background-image:url('assets/cards/consult.jpg')"></div>
         <div class="card-body">
-          <span class="badge">Coach</span>
+          <span class="badge">{{ t('card.consult.badge') }}</span>
           <h3>{{ t('card.consult.title') }}</h3>
           <p>{{ t('card.consult.desc') }}</p>
         </div>

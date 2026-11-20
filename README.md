@@ -20,16 +20,6 @@ The application includes a role-based authentication system with different permi
 
 ---
 
-# 🔐 Demo Accounts
-
-| Username | Password | Role |
-|----------|----------|------|
-| admin | admin123 | ADMIN |
-| coach01 | 123456 | COACH |
-| athlete01 | 123456 | ATHLETE |
-
----
-
 # 👥 Permissions
 
 ### ADMIN
@@ -41,8 +31,7 @@ The application includes a role-based authentication system with different permi
 
 ### COACH
 - View athletes
-- Manage nutrition entries
-- Manage consultations
+- Add and edit nutrition entries and consultations
 - Read-only access to coaches
 
 ### ATHLETE
@@ -63,14 +52,6 @@ The application includes a role-based authentication system with different permi
 
 ![Sign In](https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend/blob/main/src/assets/screenshots/signin-page.png?raw=true)
 
-### 🧍 Athletes
-
-![Athletes](https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend/blob/main/src/assets/screenshots/athletes-page.png?raw=true)
-
-### 🍽️ Nutrition
-
-![Nutrition](https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend/blob/main/src/assets/screenshots/nutrition-page.png?raw=true)
-
 ---
 
 # ⚙️ Technologies
@@ -81,7 +62,7 @@ The application includes a role-based authentication system with different permi
 | UI | HTML5, CSS3, Bootstrap |
 | Backend | Spring Boot (Java 21) |
 | Database | MySQL |
-| Security | Spring Security (HTTP Basic) |
+| Security | Spring Security and JWT Bearer authentication |
 | Version Control | Git & GitHub |
 | Tools | IntelliJ IDEA, VS Code, Postman |
 
@@ -104,13 +85,13 @@ cd olympic-nutrition-tracker-frontend
 Install dependencies
 
 ```bash
-npm install
+npm ci
 ```
 
 Run the application
 
 ```bash
-ng serve -o
+npm start
 ```
 
 The application runs at
@@ -118,6 +99,28 @@ The application runs at
 ```
 http://localhost:4200
 ```
+
+The development build calls `http://localhost:8080/api` by default.
+
+## Production build and hosting
+
+```bash
+npm run build
+```
+
+Serve `dist/app` over HTTPS. Forward `/api` and its subpaths to Spring Boot and
+serve `index.html` for Angular routes such as `/consultations`. Keep API errors
+on the API route so they reach the frontend with their original HTTP status.
+
+For a separately hosted API, set `apiUrl` in `src/environments/environment.prod.ts`
+to the public HTTPS API base URL without a trailing slash, then rebuild. Configure
+Spring Security CORS for the frontend origin, the methods it uses, and the
+`Authorization` and `Content-Type` headers. Angular bundles this URL as public
+configuration. Keep database credentials and the JWT signing key in the backend
+deployment's secret store.
+
+Use a supported Angular and Node.js combination for production. This repository
+currently uses Angular 17.3, which supported Node.js 18 and 20 when it was maintained.
 
 ---
 
@@ -133,18 +136,23 @@ http://localhost:4200
 The current version uses:
 
 - Spring Security
-- HTTP Basic Authentication
+- JWT Bearer authentication via `POST /api/auth/login`
 - Role-Based Access Control (ADMIN / COACH / ATHLETE)
 
-JWT authentication and database user management are planned for a future version.
+The frontend expects `/api/auth/login` to return `token`, `username`, and `role`.
+The server must supply the authenticated username and role. The frontend uses
+them to present the appropriate controls, while Spring Security must enforce the
+permissions and record-level access on each endpoint. Return HTTP 401 for an
+invalid or expired token and 403 when an authenticated user lacks permission.
+
+Keep local Postman workspaces and exports out of Git. Share only collections
+that use variables for credentials and URLs and contain synthetic sample data.
 
 ---
 
 # 📌 Future Improvements
 
-- JWT Authentication
 - User Registration
-- Password Encryption
 - User Profile
 - Cloud Deployment
 - Unit & Integration Tests

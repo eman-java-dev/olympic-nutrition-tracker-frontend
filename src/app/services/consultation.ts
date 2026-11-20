@@ -1,6 +1,6 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { StorageService } from './storage';
-import { ApiService } from './api';
+import { ApiService, ListPage, singlePage } from './api';
 import { environment } from '../../environments/environment';
 
 export interface Consultation {
@@ -13,10 +13,6 @@ export interface Consultation {
   coachName?: string;
 }
 
-interface PageResponse<T> {
-  content: T[];
-}
-
 @Injectable({ providedIn: 'root' })
 export class ConsultationService {
   private store = inject(StorageService);
@@ -24,54 +20,36 @@ export class ConsultationService {
   private key = 'consultations';
   private useApi = environment.useApi;
 
-  list = signal<Consultation[]>([]);
-
-  async init(): Promise<void> {
-    this.list.set(await this.listAll());
-  }
-
-  async listAll(): Promise<Consultation[]> {
-    if (this.useApi) {
-      const page = await this.api.get<PageResponse<Consultation>>('/consultations');
-      return Array.isArray(page.content) ? page.content : [];
-    }
-
-    return this.store.read<Consultation>(this.key);
+  listPage(page: number): Promise<ListPage<Consultation>> {
+    return this.useApi
+      ? this.api.getPage<Consultation>('/consultations', page)
+      : Promise.resolve(singlePage(this.store.read<Consultation>(this.key)));
   }
 
   async create(c: Consultation): Promise<Consultation> {
     if (this.useApi) {
-      const saved = await this.api.post<Consultation>('/consultations', c);
-      this.list.set([...(this.list() || []), saved]);
-      return saved;
+      return this.api.post<Consultation>('/consultations', c);
     }
 
-    const saved = this.store.upsert<Consultation>(this.key, c);
-    this.list.set(this.store.read<Consultation>(this.key));
-    return saved;
+    return this.store.upsert<Consultation>(this.key, c);
   }
 
   async update(id: number, c: Consultation): Promise<Consultation> {
     if (this.useApi) {
-      const saved = await this.api.put<Consultation>(`/consultations/${id}`, c);
-      this.list.set((this.list() || []).map(x => x.id === id ? saved : x));
-      return saved;
+      return this.api.put<Consultation>(`/consultations/${id}`, c);
     }
 
     const updated: Consultation = { ...c, id };
-    const saved = this.store.upsert<Consultation>(this.key, updated);
-    this.list.set(this.store.read<Consultation>(this.key));
-    return saved;
+    return this.store.upsert<Consultation>(this.key, updated);
   }
 
   async remove(id: number): Promise<void> {
     if (this.useApi) {
       await this.api.delete<void>(`/consultations/${id}`);
-      this.list.set((this.list() || []).filter(x => x.id !== id));
+
       return;
     }
 
     this.store.remove(this.key, id);
-    this.list.set(this.store.read<Consultation>(this.key));
   }
 }

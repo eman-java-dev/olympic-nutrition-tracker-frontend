@@ -1,34 +1,38 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Coach, CoachService } from '../../services/coach';
-import { LangService } from '../../services/lang';
+import { apiErrorKey, ListPage } from '../../services/api';
 import { AuthService } from '../../services/auth';
+import { LangService } from '../../services/lang';
+import { ListPagerComponent } from '../list-pager';
 
 @Component({
   standalone: true,
   selector: 'app-coaches',
-  imports: [CommonModule, FormsModule],
-  templateUrl: './coaches.html',
+  imports: [CommonModule, FormsModule, ListPagerComponent],
+  templateUrl: './coaches.html'
 })
 export class CoachesComponent implements OnInit {
   private service = inject(CoachService);
+  private auth = inject(AuthService);
   private lang = inject(LangService);
-  auth = inject(AuthService);
 
-  t = (k: string) => this.lang.t(k);
+  t = (key: string) => this.lang.t(key);
 
-  list = signal<Coach[]>([]);
-  editingId = signal<number | null>(null);
-  loading = signal<boolean>(false);
-  error = signal<string>('');
+  page = signal<ListPage<Coach> | null>(null);
+  list = () => this.page()?.items ?? [];
+  editingId = signal<number | undefined>(undefined);
+  loading = signal(false);
+  error = signal('');
+  listError = signal('');
+  success = signal('');
 
-  model: Coach = {
-    name: '',
-    specialty: '',
-    email: '',
-    phone: ''
-  };
+  model = this.emptyModel();
+
+  private emptyModel(): Coach {
+    return { name: '', specialty: '', email: '', phone: '' };
+  }
 
   async ngOnInit(): Promise<void> {
     await this.loadCoaches();
@@ -38,108 +42,114 @@ export class CoachesComponent implements OnInit {
     return this.auth.hasRole('ADMIN');
   }
 
-  async loadCoaches(): Promise<void> {
+  async loadCoaches(page = this.page()?.number ?? 0): Promise<void> {
+    this.loading.set(true);
+    this.listError.set('');
     try {
-      this.loading.set(true);
-      this.error.set('');
-
-      await this.service.init();
-      this.list.set(this.service.list());
-    } catch (e) {
-      console.error(e);
-      this.error.set('Impossible de charger les coachs. Vérifiez que le backend est démarré.');
+      this.page.set(await this.service.listPage(page));
+    } catch (error) {
+      console.error(error);
+      this.page.set(null);
+      this.listError.set(apiErrorKey(error, 'error.load'));
     } finally {
       this.loading.set(false);
     }
   }
 
-  async save(f: NgForm): Promise<void> {
+  edit(record: Coach): void {
     if (!this.canManageCoaches()) {
-      this.error.set('Accès refusé : seul l’administrateur peut gérer les coachs.');
+      this.error.set('common.adminOnly');
+      return;
+    }
+    if (record.id == null) {
+      this.error.set('error.missingId');
       return;
     }
 
-    if (!this.model.name?.trim()) {
-      this.error.set('Veuillez saisir le nom du coach.');
-      return;
-    }
-
-    try {
-      this.loading.set(true);
-      this.error.set('');
-
-      const id = this.editingId();
-
-      const payload: Coach = {
-        name: this.model.name.trim(),
-        specialty: this.model.specialty?.trim() || '',
-        email: this.model.email?.trim() || '',
-        phone: this.model.phone?.trim() || ''
-      };
-
-      if (id !== null) {
-        await this.service.update(id, payload);
-      } else {
-        await this.service.create(payload);
-      }
-
-      this.cancel(f);
-      await this.loadCoaches();
-    } catch (e) {
-      console.error(e);
-      this.error.set('Erreur lors de l’enregistrement du coach.');
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
-  edit(c: Coach): void {
-    if (!this.canManageCoaches()) {
-      this.error.set('Accès refusé : seul l’administrateur peut modifier un coach.');
-      return;
-    }
-
-    this.editingId.set(c.id ?? null);
-    this.model = { ...c };
+    this.error.set('');
+    this.success.set('');
+    this.editingId.set(record.id);
+    this.model = { ...record };
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  cancel(f: NgForm): void {
-    this.editingId.set(null);
-    f.resetForm();
+  async save(f: NgForm): Promise<void> {
+    if (this.loading()) return;
+    this.success.set('');
 
-    this.model = {
-      name: '',
-      specialty: '',
-      email: '',
-      phone: ''
-    };
-  }
-
-  async remove(id?: number): Promise<void> {
     if (!this.canManageCoaches()) {
-      this.error.set('Accès refusé : seul l’administrateur peut supprimer un coach.');
+      this.error.set('common.adminOnly');
+      return;
+    }
+    if (f.invalid) {
+      this.error.set('validation.form');
+      return;
+    }
+    if (!this.model.name?.trim()) {
+      this.error.set('validation.name');
       return;
     }
 
-    if (id === undefined || id === null) return;
-    if (!confirm('Supprimer ce coach ?')) return;
+    const id = this.editingId();
+    const payload: Coach = {
+      name: this.model.name.trim(),
+      specialty: this.model.specialty?.trim() || '',
+      email: this.model.email?.trim() || '',
+      phone: this.model.phone?.trim() || ''
+    };
 
+    this.loading.set(true);
+    this.error.set('');
     try {
-      this.loading.set(true);
-      this.error.set('');
-
-      await this.service.remove(id);
-      await this.loadCoaches();
-
-      if (this.editingId() === id) {
-        this.editingId.set(null);
+      if (id === undefined) {
+        await this.service.create(payload);
+      } else {
+        await this.service.update(id, payload);
       }
-    } catch (e) {
-      console.error(e);
-      this.error.set('Erreur lors de la suppression.');
+
+      this.cancel(f);
+      this.success.set(id === undefined ? 'common.created' : 'common.updated');
+      await this.loadCoaches(id === undefined ? 0 : this.page()?.number ?? 0);
+    } catch (error) {
+      console.error(error);
+      this.error.set(apiErrorKey(error, 'error.save'));
     } finally {
       this.loading.set(false);
     }
+  }
+
+  async remove(id?: number): Promise<void> {
+    if (this.loading()) return;
+    if (!this.canManageCoaches()) {
+      this.error.set('common.adminOnly');
+      return;
+    }
+    if (id == null) {
+      this.error.set('error.missingId');
+      return;
+    }
+    if (!confirm(this.t('common.confirmDelete'))) return;
+
+    this.loading.set(true);
+    this.error.set('');
+    this.success.set('');
+    try {
+      await this.service.remove(id);
+      if (this.editingId() === id) this.cancel();
+      this.success.set('common.deleted');
+      await this.loadCoaches();
+    } catch (error) {
+      console.error(error);
+      this.error.set(apiErrorKey(error, 'error.delete'));
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  cancel(form?: NgForm): void {
+    this.editingId.set(undefined);
+    this.model = this.emptyModel();
+    form?.resetForm(this.model);
+    this.error.set('');
   }
 }

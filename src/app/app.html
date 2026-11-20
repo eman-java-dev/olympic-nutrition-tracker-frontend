@@ -1,15 +1,15 @@
-<nav class="nav" role="navigation" aria-label="Main">
+<nav class="nav" role="navigation" [attr.aria-label]="t('nav.main')">
   <div class="container nav-inner">
     <a class="brand shine" routerLink="/home">
       {{ t('brand') }}
     </a>
 
     <div class="menu" role="menubar" *ngIf="auth.isAuthenticated()">
-      <a class="shine" routerLink="/home">Accueil</a>
-      <a class="shine" routerLink="/athletes">Athlètes</a>
-      <a class="shine" routerLink="/nutrition">Nutrition</a>
-      <a class="shine" routerLink="/consultations">Consultations</a>
-      <a class="shine" routerLink="/coaches">Coachs</a>
+      <a class="shine" routerLink="/home">{{ t('nav.home') }}</a>
+      <a class="shine" routerLink="/athletes">{{ t('nav.athletes') }}</a>
+      <a class="shine" routerLink="/nutrition">{{ t('nav.nutrition') }}</a>
+      <a class="shine" routerLink="/consultations">{{ t('nav.consultations') }}</a>
+      <a class="shine" routerLink="/coaches">{{ t('nav.coaches') }}</a>
     </div>
 
     <div style="display:flex; gap:8px; align-items:center">
@@ -26,11 +26,11 @@
       </span>
 
       <a *ngIf="!auth.isAuthenticated()" class="btn btn-primary shine" routerLink="/signin">
-        Se connecter
+        {{ t('nav.signin') }}
       </a>
 
       <button *ngIf="auth.isAuthenticated()" class="btn btn-danger shine" type="button" (click)="logout()">
-        Déconnexion
+        {{ t('nav.signout') }}
       </button>
     </div>
   </div>

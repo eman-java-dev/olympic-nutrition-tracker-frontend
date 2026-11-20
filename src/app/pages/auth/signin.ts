@@ -1,8 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { LangService } from '../../services/lang';
 
 @Component({
   standalone: true,
@@ -14,11 +15,26 @@ import { AuthService } from '../../services/auth';
 export class SignInComponent {
   private router = inject(Router);
   private auth = inject(AuthService);
+  private location = inject(Location);
+  private lang = inject(LangService);
+
+  t = (key: string) => this.lang.t(key);
+
+  get canGoBack(): boolean {
+    return window.history.length > 1;
+  }
 
   username = '';
   password = '';
   loading = false;
   error = '';
+
+  get sessionMessage(): string {
+    const notice = this.auth.sessionNotice();
+    if (notice === 'expired') return 'auth.sessionExpired';
+    if (notice === 'rejected') return 'auth.sessionRejected';
+    return '';
+  }
 
   async login(f: NgForm): Promise<void> {
     if (this.loading || !f.valid) return;
@@ -26,21 +42,20 @@ export class SignInComponent {
     this.loading = true;
     this.error = '';
 
-    await new Promise(resolve => setTimeout(resolve, 400));
-
-    const ok = await this.auth.login(this.username, this.password);
-
-    if (ok) {
+    try {
+      const error = await this.auth.login(this.username, this.password);
+      if (error) {
+        this.error = 'auth.' + error;
+        return;
+      }
       await this.router.navigateByUrl('/home');
-    } else {
-      this.error = 'Identifiants invalides.';
+    } finally {
+      this.loading = false;
     }
-
-    this.loading = false;
   }
 
   back(): void {
-    this.router.navigateByUrl('/signin');
+    if (this.canGoBack) this.location.back();
   }
 
   private reduceMotion =

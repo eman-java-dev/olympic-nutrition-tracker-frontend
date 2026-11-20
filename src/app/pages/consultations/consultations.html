@@ -1,12 +1,23 @@
-<section class="hero" style="height:40vh; border-bottom-left-radius:24px; border-bottom-right-radius:24px; overflow:hidden;">
+<section
+  class="hero"
+  style="
+    height: 40vh;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    overflow: hidden;
+  "
+>
   <video autoplay muted loop playsinline class="hero-video">
     <source src="assets/side.mp4" type="video/mp4" />
   </video>
 
   <div class="hero-overlay">
     <div class="container">
-      <span class="kicker">CONSULTATIONS</span>
-      <h1>Planifier et suivre les consultations entre coachs et athlètes.</h1>
+      <span class="kicker">{{ t('consult.title') }}</span>
+
+      <h1>
+        {{ t('consult.help') }}
+      </h1>
     </div>
   </div>
 </section>
@@ -14,13 +25,31 @@
 <section class="section">
   <div class="container">
 
-    <div *ngIf="error()" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
-      <div class="card-body" style="color:#ff4d4f;">
-        {{ error() }}
+    <ng-container *ngFor="let key of [error(), listError(), lookupError()]">
+      <div *ngIf="key" role="alert" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
+        <div class="card-body" style="color:#ff4d4f;">{{ t(key) }}</div>
+      </div>
+    </ng-container>
+
+    <div *ngIf="success()" role="status" class="card" style="margin-bottom:12px;">
+      <div class="card-body">{{ t(success()) }}</div>
+    </div>
+
+    <div
+      *ngIf="!canCreateOrUpdate()"
+      class="card"
+      style="
+        margin-bottom: 12px;
+        border-color: rgba(255, 209, 0, 0.35);
+      "
+    >
+      <div class="card-body" style="color: var(--muted);">
+        {{ t('common.readOnlyCoach') }}
       </div>
     </div>
 
     <form
+      *ngIf="canCreateOrUpdate()"
       #f="ngForm"
       (ngSubmit)="save(f)"
       class="consultation-form"
@@ -28,6 +57,7 @@
       <input
         class="input"
         type="datetime-local"
+        [attr.aria-label]="t('consult.when')"
         name="scheduledAt"
         [(ngModel)]="model.scheduledAt"
         required
@@ -35,121 +65,183 @@
 
       <select
         class="input"
+        [attr.aria-label]="t('common.athlete')"
         name="athleteId"
         [(ngModel)]="model.athleteId"
         required
       >
-        <option [ngValue]="undefined">Athlète</option>
-        <option *ngFor="let a of athletes()" [ngValue]="a.id">
-          {{ a.name }}
+        <option [ngValue]="undefined">
+          {{ t('common.selectAthlete') }}
+        </option>
+
+        <option
+          *ngFor="let athlete of athletes()"
+          [ngValue]="athlete.id"
+        >
+          {{ athlete.name }}
         </option>
       </select>
 
       <select
         class="input"
+        [attr.aria-label]="t('common.coach')"
         name="coachId"
         [(ngModel)]="model.coachId"
         required
       >
-        <option [ngValue]="undefined">Coach</option>
-        <option *ngFor="let c of coaches()" [ngValue]="c.id">
-          {{ c.name }}
+        <option [ngValue]="undefined">
+          {{ t('common.selectCoach') }}
+        </option>
+
+        <option
+          *ngFor="let coach of coaches()"
+          [ngValue]="coach.id"
+        >
+          {{ coach.name }}
         </option>
       </select>
 
       <input
         class="input"
         type="text"
+        [attr.aria-label]="t('consult.placeholder')"
+        [placeholder]="t('consult.placeholder')"
         name="message"
         [(ngModel)]="model.message"
-        placeholder="Message"
+        maxlength="300"
         required
       />
 
-      <button class="btn btn-primary shine" type="submit" [disabled]="loading()">
-        {{ editingId() ? 'Mettre à jour' : 'Ajouter' }}
+      <button
+        class="btn btn-primary shine"
+        type="submit"
+        [disabled]="loading() || optionsLoading() || !!lookupError() || f.invalid"
+      >
+        {{ t(editingId() !== undefined ? 'common.update' : 'common.add') }}
       </button>
+      <button *ngIf="editingId() !== undefined" class="btn btn-ghost shine" type="button"
+              (click)="resetForm(f)" [disabled]="loading()">
+        {{ t('common.cancel') }}
+      </button>
+      <small *ngIf="f.invalid && (f.dirty || f.submitted)" style="grid-column:1/-1;">
+        {{ t('validation.form') }}
+      </small>
     </form>
 
-    <div style="height:12px"></div>
+    <div style="height: 12px;"></div>
 
     <button
       class="btn btn-ghost shine"
       type="button"
-      (click)="loadPageData()"
-      [disabled]="loading()"
-      style="margin-bottom:12px;"
+      (click)="refreshPage()"
+      [disabled]="loading() || optionsLoading()"
+      style="margin-bottom: 12px;"
     >
-      Rafraîchir
+      {{ t('common.refresh') }}
     </button>
 
     <div class="card">
       <div class="card-body">
 
-        <div *ngIf="loading()" style="padding:12px; color:var(--muted)">
-          Chargement...
+        <div
+          *ngIf="loading()"
+          style="padding: 12px; color: var(--muted);"
+        >
+          {{ t('common.loading') }}
         </div>
 
-        <table class="table consultation-table" *ngIf="!loading()">
+        <table
+          class="table consultation-table"
+          *ngIf="!loading() && page()"
+        >
           <thead>
             <tr>
               <th>#</th>
-              <th>Date</th>
-              <th>Message</th>
-              <th>Athlète</th>
-              <th>Coach</th>
-              <th>Actions</th>
+              <th>{{ t('consult.when') }}</th>
+              <th>{{ t('consult.message') }}</th>
+              <th>{{ t('common.athlete') }}</th>
+              <th>{{ t('common.coach') }}</th>
+
+              <th *ngIf="canCreateOrUpdate() || canDelete()">
+                {{ t('common.actions') }}
+              </th>
             </tr>
           </thead>
 
           <tbody>
-            <tr *ngFor="let c of list(); let i = index">
-              <td>{{ i + 1 }}</td>
+            <tr *ngFor="let consultation of list(); let i = index">
+              <td>{{ (page()?.number ?? 0) * (page()?.size ?? 0) + i + 1 }}</td>
 
               <td>
-                {{ c.scheduledAt | date:'dd/MM/yyyy HH:mm' }}
+                <!-- Format the API’s timezone-free LocalDateTime without shifting its wall time. -->
+                {{
+                  (consultation.scheduledAt ? consultation.scheduledAt + 'Z' : null)
+                    | date: 'short' : 'UTC' : language()
+                }}
               </td>
 
               <td class="message-cell">
-                {{ c.message || '—' }}
+                {{ consultation.message || '—' }}
               </td>
 
               <td>
-                {{ getAthleteName(c) }}
+                {{ getAthleteName(consultation) }}
               </td>
 
               <td>
-                {{ getCoachName(c) }}
+                {{ getCoachName(consultation) }}
               </td>
 
-              <td>
-                <div style="display:flex; gap:10px; align-items:center;">
+              <td *ngIf="canCreateOrUpdate() || canDelete()">
+                <div
+                  style="
+                    display: flex;
+                    gap: 10px;
+                    align-items: center;
+                  "
+                >
                   <button
+                    *ngIf="canCreateOrUpdate()"
                     class="btn btn-edit shine"
                     type="button"
-                    (click)="startEdit(c)"
+                    (click)="startEdit(consultation)"
                   >
-                    Modifier
+                    {{ t('common.edit') }}
                   </button>
 
                   <button
+                    *ngIf="canDelete()"
                     class="btn btn-danger shine"
                     type="button"
-                    (click)="remove(c.id)"
+                    (click)="remove(consultation.id)"
                   >
-                    Supprimer
+                    {{ t('common.delete') }}
                   </button>
                 </div>
               </td>
             </tr>
 
             <tr *ngIf="!list().length">
-              <td colspan="6" style="text-align:center; padding:16px; color:var(--muted)">
-                Pas de données.
+              <td
+                [attr.colspan]="
+                  canCreateOrUpdate() || canDelete() ? 6 : 5
+                "
+                style="
+                  text-align: center;
+                  padding: 16px;
+                  color: var(--muted);
+                "
+              >
+                {{ t('consult.noData') }}
               </td>
             </tr>
           </tbody>
         </table>
+        <app-list-pager
+          [page]="page()"
+          [disabled]="loading()"
+          (pageChange)="loadPageData($event)"
+        ></app-list-pager>
 
       </div>
     </div>

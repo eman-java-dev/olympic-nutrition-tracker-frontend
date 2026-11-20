@@ -2,10 +2,14 @@
   <h2>{{ t('coaches.title') }}</h2>
   <p style="color:var(--muted)">{{ t('coaches.help') }}</p>
 
-  <div *ngIf="error()" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
-    <div class="card-body" style="color:#ff4d4f;">
-      {{ error() }}
+  <ng-container *ngFor="let key of [error(), listError()]">
+    <div *ngIf="key" role="alert" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
+      <div class="card-body" style="color:#ff4d4f;">{{ t(key) }}</div>
     </div>
+  </ng-container>
+
+  <div *ngIf="success()" role="status" class="card" style="margin-bottom:12px;">
+    <div class="card-body">{{ t(success()) }}</div>
   </div>
 
   <div
@@ -14,7 +18,7 @@
     style="margin-bottom:12px; border-color:rgba(255,209,0,.35);"
   >
     <div class="card-body" style="color:var(--muted);">
-      Mode consultation : seuls les administrateurs peuvent ajouter, modifier ou supprimer des coachs.
+      {{ t('common.readOnlyAdmin') }}
     </div>
   </div>
 
@@ -26,46 +30,58 @@
   >
     <input
       class="input"
+      [attr.aria-label]="t('common.name')"
+      [placeholder]="t('common.name')"
+      maxlength="120"
       name="name"
       [(ngModel)]="model.name"
-      [placeholder]="t('coaches.name')"
       required
     />
 
     <input
       class="input"
+      [attr.aria-label]="t('coaches.spec')"
+      [placeholder]="t('coaches.spec')"
+      maxlength="120"
       name="specialty"
       [(ngModel)]="model.specialty"
-      [placeholder]="t('coaches.spec')"
     />
 
     <input
       class="input"
+      [attr.aria-label]="t('coaches.email')"
+      [placeholder]="t('coaches.email')"
+      maxlength="160"
       name="email"
       [(ngModel)]="model.email"
-      [placeholder]="t('coaches.email')"
       type="email"
+      email
     />
 
     <input
       class="input"
+      [attr.aria-label]="t('coaches.phone')"
+      [placeholder]="t('coaches.phone')"
+      maxlength="40"
       name="phone"
       [(ngModel)]="model.phone"
-      [placeholder]="t('coaches.phone')"
     />
 
-    <button class="btn btn-primary shine" type="submit" [disabled]="loading()">
-      {{ editingId() ? 'Mettre à jour' : t('coaches.add') }}
+    <button class="btn btn-primary shine" type="submit" [disabled]="loading() || f.invalid">
+      {{ t(editingId() !== undefined ? 'common.update' : 'common.add') }}
     </button>
 
     <button
       class="btn btn-ghost shine"
-      *ngIf="editingId()"
+      *ngIf="editingId() !== undefined"
       type="button"
       (click)="cancel(f)"
     >
-      Annuler
+      {{ t('common.cancel') }}
     </button>
+    <small *ngIf="f.invalid && (f.dirty || f.submitted)" style="grid-column:1/-1;">
+      {{ t(f.form.hasError('email', 'email') ? 'validation.email' : 'validation.form') }}
+    </small>
   </form>
 
   <button
@@ -75,30 +91,30 @@
     [disabled]="loading()"
     style="margin-bottom:12px;"
   >
-    Rafraîchir
+    {{ t('common.refresh') }}
   </button>
 
   <div class="card">
     <div class="card-body">
       <div *ngIf="loading()" style="padding:12px; color:var(--muted)">
-        Chargement...
+        {{ t('common.loading') }}
       </div>
 
-      <table class="table" *ngIf="!loading()">
+      <table class="table" *ngIf="!loading() && page()">
         <thead>
           <tr>
             <th>#</th>
-            <th>{{ t('coaches.name') }}</th>
+            <th>{{ t('common.name') }}</th>
             <th>{{ t('coaches.spec') }}</th>
             <th>{{ t('coaches.email') }}</th>
             <th>{{ t('coaches.phone') }}</th>
-            <th *ngIf="canManageCoaches()">Actions</th>
+            <th *ngIf="canManageCoaches()">{{ t('common.actions') }}</th>
           </tr>
         </thead>
 
         <tbody>
           <tr *ngFor="let c of list(); index as i">
-            <td>{{ i + 1 }}</td>
+            <td>{{ (page()?.number ?? 0) * (page()?.size ?? 0) + i + 1 }}</td>
             <td>{{ c.name }}</td>
             <td>{{ c.specialty || '-' }}</td>
             <td>{{ c.email || '-' }}</td>
@@ -111,7 +127,7 @@
                   type="button"
                   (click)="edit(c)"
                 >
-                  Modifier
+                  {{ t('common.edit') }}
                 </button>
 
                 <button
@@ -119,7 +135,7 @@
                   type="button"
                   (click)="remove(c.id)"
                 >
-                  Supprimer
+                  {{ t('common.delete') }}
                 </button>
               </div>
             </td>
@@ -135,6 +151,11 @@
           </tr>
         </tbody>
       </table>
+      <app-list-pager
+        [page]="page()"
+        [disabled]="loading()"
+        (pageChange)="loadCoaches($event)"
+      ></app-list-pager>
     </div>
   </div>
 </div>

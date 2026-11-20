@@ -1,16 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { StorageService } from './storage';
-import { ApiService } from './api';
+import { ApiService, ListPage, singlePage } from './api';
 import { environment } from '../../environments/environment';
 import type { NutritionEntry } from './nutrition-entry';
-
-interface PageResponse<T> {
-  content: T[];
-  totalElements?: number;
-  totalPages?: number;
-  size?: number;
-  number?: number;
-}
 
 @Injectable({ providedIn: 'root' })
 export class NutritionService {
@@ -19,14 +11,10 @@ export class NutritionService {
   private key = 'nutrition_entries';
   private useApi = environment.useApi;
 
-  async list(): Promise<NutritionEntry[]> {
-    if (this.useApi) {
-      const page = await this.api.get<PageResponse<NutritionEntry>>('/nutrition-entries');
-      return Array.isArray(page.content) ? page.content : [];
-    }
-
-    const data = this.store.read<NutritionEntry>(this.key);
-    return Array.isArray(data) ? data : [];
+  listPage(page: number): Promise<ListPage<NutritionEntry>> {
+    return this.useApi
+      ? this.api.getPage<NutritionEntry>('/nutrition-entries', page)
+      : Promise.resolve(singlePage(this.store.read<NutritionEntry>(this.key)));
   }
 
   async create(e: NutritionEntry): Promise<NutritionEntry> {

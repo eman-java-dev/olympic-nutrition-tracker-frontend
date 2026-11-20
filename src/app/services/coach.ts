@@ -1,6 +1,6 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { StorageService } from './storage';
-import { ApiService } from './api';
+import { ApiService, ListPage, singlePage } from './api';
 import { environment } from '../../environments/environment';
 
 export interface Coach {
@@ -11,10 +11,6 @@ export interface Coach {
   phone?: string;
 }
 
-interface PageResponse<T> {
-  content: T[];
-}
-
 @Injectable({ providedIn: 'root' })
 export class CoachService {
   private store = inject(StorageService);
@@ -22,24 +18,16 @@ export class CoachService {
   private key = 'coaches';
   private useApi = environment.useApi;
 
-  list = signal<Coach[]>([]);
-
-  async init(): Promise<void> {
-    this.list.set(await this.listAll());
+  listPage(page: number): Promise<ListPage<Coach>> {
+    return this.useApi
+      ? this.api.getPage<Coach>('/coaches', page)
+      : Promise.resolve(singlePage(this.store.read<Coach>(this.key)));
   }
 
-  async listAll(): Promise<Coach[]> {
-    if (this.useApi) {
-      const response = await this.api.get<Coach[] | PageResponse<Coach>>('/coaches');
-
-      if (Array.isArray(response)) {
-        return response;
-      }
-
-      return Array.isArray(response.content) ? response.content : [];
-    }
-
-    return this.store.read<Coach>(this.key);
+  listAll(): Promise<Coach[]> {
+    return this.useApi
+      ? this.api.getAllPages<Coach>('/coaches')
+      : Promise.resolve(this.store.read<Coach>(this.key));
   }
 
   async create(c: Coach): Promise<Coach> {
@@ -51,16 +39,10 @@ export class CoachService {
         phone: c.phone || ''
       };
 
-      const saved = await this.api.post<Coach>('/coaches', payload);
-
-      await this.init();
-
-      return saved;
+      return this.api.post<Coach>('/coaches', payload);
     }
 
-    const saved = this.store.upsert<Coach>(this.key, c);
-    this.list.set(this.store.read<Coach>(this.key));
-    return saved;
+    return this.store.upsert<Coach>(this.key, c);
   }
 
   async update(id: number, c: Coach): Promise<Coach> {
@@ -72,29 +54,20 @@ export class CoachService {
         phone: c.phone || ''
       };
 
-      const saved = await this.api.put<Coach>(`/coaches/${id}`, payload);
-
-      await this.init();
-
-      return saved;
+      return this.api.put<Coach>(`/coaches/${id}`, payload);
     }
 
     const updated: Coach = { ...c, id };
-    const saved = this.store.upsert<Coach>(this.key, updated);
-    this.list.set(this.store.read<Coach>(this.key));
-    return saved;
+    return this.store.upsert<Coach>(this.key, updated);
   }
 
   async remove(id: number): Promise<void> {
     if (this.useApi) {
       await this.api.delete<void>(`/coaches/${id}`);
 
-      await this.init();
-
       return;
     }
 
     this.store.remove(this.key, id);
-    this.list.set(this.store.read<Coach>(this.key));
   }
 }

@@ -40,3 +40,37 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Local configuration and secret-bearing files
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+!.env.sample
+.npmrc
+credentials.json
+secrets.json
+secrets.yml
+secrets.yaml
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+application-local.*
+application-secrets.*
+*.sql
+*.sql.gz
+
+# Local Postman workspace and captured requests
+/.postman/
+/postman/
+*.postman_environment.json
+*.postman_globals.json
+
+# Local screenshots with unverified record data
+/.local-screenshots/
+/src/assets/screenshots/athletes-page.png
+/src/assets/screenshots/nutrition-page.png
