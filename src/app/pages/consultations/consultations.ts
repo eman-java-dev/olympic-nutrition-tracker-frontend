@@ -63,6 +63,10 @@ export class ConsultationsComponent implements OnInit {
     return this.auth.hasRole('ADMIN');
   }
 
+  canChooseCoach(): boolean {
+    return this.editingId() === undefined || this.auth.hasRole('ADMIN');
+  }
+
   async loadPageData(page = this.page()?.number ?? 0): Promise<void> {
     this.loading.set(true);
     this.listError.set('');
@@ -160,7 +164,10 @@ export class ConsultationsComponent implements OnInit {
       await this.loadPageData(id === undefined ? 0 : this.page()?.number ?? 0);
     } catch (error) {
       console.error(error);
-      this.error.set(apiErrorKey(error, 'error.save'));
+      const key = apiErrorKey(error, 'error.save');
+      this.error.set(key === 'error.forbidden' && this.auth.hasRole('COACH')
+        ? 'consult.assignmentRequired'
+        : key);
     } finally {
       this.loading.set(false);
     }

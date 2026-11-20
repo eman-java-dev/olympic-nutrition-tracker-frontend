@@ -87,6 +87,7 @@
         [attr.aria-label]="t('common.coach')"
         name="coachId"
         [(ngModel)]="model.coachId"
+        [disabled]="!canChooseCoach()"
         required
       >
         <option [ngValue]="undefined">

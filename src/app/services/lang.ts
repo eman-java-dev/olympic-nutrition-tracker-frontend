@@ -100,6 +100,7 @@ const translations: Dictionary = {
   'consult.when': { en: 'Date and time', fr: 'Date et heure' },
   'consult.message': { en: 'Message', fr: 'Message' },
   'consult.placeholder': { en: 'Consultation message', fr: 'Message de la consultation' },
+  'consult.assignmentRequired': { en: 'Choose your own coach profile and one of your assigned athletes.', fr: 'Choisissez votre propre profil de coach et un athlète qui vous est attribué.' },
   'consult.noData': { en: 'No consultations available.', fr: 'Aucune consultation disponible.' },
   'auth.title': { en: 'Sign in', fr: 'Se connecter' },
   'auth.lead': { en: 'Enter your credentials to continue.', fr: 'Entrez vos identifiants pour continuer.' },
