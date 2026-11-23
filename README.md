@@ -27,7 +27,7 @@ The [package manifest](package.json) targets Angular 17.3. The [lockfile](packag
 | `/nutrition` | Nutrition entries and athlete filtering. |
 | `/consultations` | Consultation schedules and management controls. |
 
-The application guards every route except the sign-in entry point and redirects unauthenticated users to it. [Angular route definitions](src/app/app.routes.ts)
+`authGuard` protects `/home`, `/athletes`, `/coaches`, `/nutrition`, and `/consultations` and redirects unauthenticated users to `/signin`. The `/signin` route uses `guestGuard` to redirect authenticated users to `/home`. The root path and unknown paths redirect to `/signin`. [Angular route definitions](src/app/app.routes.ts)
 
 | Role | Available interface actions |
 | --- | --- |
@@ -35,11 +35,13 @@ The application guards every route except the sign-in entry point and redirects 
 | `COACH` | View assigned athletes and browse the coach directory. Create or update nutrition entries for assigned athletes and create or update their own consultations in that scope. |
 | `ATHLETE` | Read the linked athlete profile, its nutrition entries and consultations, and the coach directory. |
 
-The interface uses the account role to control which actions are visible. The backend enforces authorization and record scope, including coach assignments. A linked athlete or coach profile is required for scoped records.
+The interface uses the account role to control which actions are visible. The backend enforces authorization and record scope, including coach assignments. `ATHLETE` accounts need a matching athlete profile link to access their records. `COACH` accounts need a matching coach profile link to access the records of their assigned athletes. `ADMIN` access requires no profile link.
 
 ## Local development
 
-Use Node.js 20 and npm. From the repository root:
+To reproduce the audited Angular 17.3 build, use Node.js `20.20.2` and npm. Angular 17 is no longer supported, and Node.js 20 has reached end of life. A coordinated framework and runtime upgrade is separate follow-up work. [Angular version compatibility](https://angular.dev/reference/versions) · [Node.js end-of-life releases](https://nodejs.org/en/about/eol)
+
+From the repository root:
 
 ```sh
 npm ci
@@ -73,6 +75,6 @@ The frontend uses the token expiry and role for navigation and display. The back
 
 ## Verification and remaining work
 
-The production build was verified with Node.js 20.20.2. `npm test` prints `No tests configured`, and the project has no configured Angular test target or browser end-to-end suite. Public route and CORS checks establish connectivity. They do not validate authenticated browser workflows.
+The 23 November 2026 audit reported a successful production build at `80509cf` using Node.js `20.20.2`. `npm test` prints `No tests configured`. The frontend had no configured automated test target or browser end-to-end suite, so the audit ran neither. Its public route and CORS checks covered connectivity.
 
 The UI supports sign-in and sign-out. Registration exists in the backend API. A registration screen, automated guard and interceptor tests, and browser tests for role-specific workflows remain follow-up work.
