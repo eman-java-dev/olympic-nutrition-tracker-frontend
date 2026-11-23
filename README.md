@@ -1,169 +1,78 @@
-# 🥗 Olympic Nutrition Tracker
+# Olympic Nutrition Tracker Frontend
 
-A modern web application built with **Angular 17** and **Spring Boot** for managing athletes, nutrition monitoring, consultations, and coach administration.
+Olympic Nutrition Tracker is an Angular application for managing athlete profiles, coaches, consultations, and nutrition entries. It provides English and French interfaces and uses the [Spring Boot API](https://github.com/eman-java-dev/OlympicNutritionTracker-Backend) for authentication and data.
 
-The application includes a role-based authentication system with different permissions for administrators, coaches, and athletes.
+[Open the live application](https://olympic-nutrition-tracker-frontend.onrender.com) · [Check API reachability](https://olympicnutritiontracker-backend.onrender.com/healthz)
 
----
+The [package manifest](package.json) targets Angular 17.3. The [lockfile](package-lock.json) resolves Angular core 17.3.12, Angular CLI 17.3.17, TypeScript 5.3.3, and RxJS 7.8.2.
 
-# 🌍 Features
+## Screenshots
 
-- 🔐 Authentication (Sign In / Sign Out)
-- 👤 Role-Based Access Control (ADMIN, COACH, ATHLETE)
-- 🧍 Athlete Management
-- 🧑‍🏫 Coach Management
-- 🍽️ Nutrition Tracking
-- 📅 Consultation Management
-- 🌐 Multilingual Interface (English / French)
-- 🎥 Modern UI with video hero sections
-- 📱 Responsive Design
+**Home screen**
 
----
+![Olympic Nutrition Tracker home screen with navigation and a video hero](src/assets/screenshots/home-page.png)
 
-# 👥 Permissions
+**Sign-in screen**
 
-### ADMIN
-- Full access to the application
-- Manage athletes
-- Manage coaches
-- Manage nutrition entries
-- Manage consultations
+![Olympic Nutrition Tracker sign-in form in French](src/assets/screenshots/signin-page.png)
 
-### COACH
-- View athletes
-- Add and edit nutrition entries and consultations
-- Read-only access to coaches
+## Routes and permissions
 
-### ATHLETE
-- View athletes
-- View nutrition data
-- View consultations
-- Read-only access to the application
+| Route | Screen |
+| --- | --- |
+| `/signin` | Sign-in form. The root path and unknown paths redirect here. An authenticated user is directed to the home screen. |
+| `/home` | Protected home screen with links to the main features. |
+| `/athletes` | Athlete profiles and coach assignment controls. |
+| `/coaches` | Coach directory and administration controls. |
+| `/nutrition` | Nutrition entries and athlete filtering. |
+| `/consultations` | Consultation schedules and management controls. |
 
----
+The application guards every route except the sign-in entry point and redirects unauthenticated users to it. [Angular route definitions](src/app/app.routes.ts)
 
-# 🖼️ Screenshots
+| Role | Available interface actions |
+| --- | --- |
+| `ADMIN` | Manage athletes and coaches, assign coaches, and create, update, or delete nutrition entries and consultations. |
+| `COACH` | View assigned athletes and browse the coach directory. Create or update nutrition entries for assigned athletes and create or update their own consultations in that scope. |
+| `ATHLETE` | Read the linked athlete profile, its nutrition entries and consultations, and the coach directory. |
 
-### 🏠 Home Page
+The interface uses the account role to control which actions are visible. The backend enforces authorization and record scope, including coach assignments. A linked athlete or coach profile is required for scoped records.
 
-![Home Page](https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend/blob/main/src/assets/screenshots/home-page.png?raw=true)
+## Local development
 
-### 🔐 Sign In
+Use Node.js 20 and npm. From the repository root:
 
-![Sign In](https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend/blob/main/src/assets/screenshots/signin-page.png?raw=true)
-
----
-
-# ⚙️ Technologies
-
-| Category | Technologies |
-|-----------|--------------|
-| Frontend | Angular 17, TypeScript |
-| UI | HTML5, CSS3, Bootstrap |
-| Backend | Spring Boot (Java 21) |
-| Database | MySQL |
-| Security | Spring Security and JWT Bearer authentication |
-| Version Control | Git & GitHub |
-| Tools | IntelliJ IDEA, VS Code, Postman |
-
----
-
-# 🚀 Installation
-
-Clone the repository
-
-```bash
-git clone https://github.com/eman-java-dev/olympic-nutrition-tracker-frontend.git
-```
-
-Go to the project
-
-```bash
-cd olympic-nutrition-tracker-frontend
-```
-
-Install dependencies
-
-```bash
+```sh
 npm ci
-```
-
-Run the application
-
-```bash
 npm start
 ```
 
-The application runs at
+The development server opens `http://localhost:4200` and sends API requests to `http://localhost:8080/api`. Set up and start the [backend service](https://github.com/eman-java-dev/OlympicNutritionTracker-Backend) with a local MySQL database before signing in.
 
+## API configuration and Render
+
+| Build | API base |
+| --- | --- |
+| Development | `http://localhost:8080/api` in [environment.ts](src/environments/environment.ts) |
+| Production | `https://olympicnutritiontracker-backend.onrender.com/api` in [environment.prod.ts](src/environments/environment.prod.ts) |
+
+The [Angular build configuration](angular.json) selects the production environment file for a production build. The API base is part of the public JavaScript bundle. Update the environment file and rebuild if the backend moves.
+
+```sh
+npm run build -- --configuration production
 ```
-http://localhost:4200
-```
 
-The development build calls `http://localhost:8080/api` by default.
+The deployed frontend is served over HTTPS as a Render Static Site. For a corresponding deployment, build from the repository root with `npm ci` and the production build command, publish `dist/app`, and rewrite Angular paths from `/*` to `/index.html` so that a route can be opened directly or refreshed. Angular sends API requests directly to the separate Render backend by absolute URL. [Render routes and rewrites](https://render.com/docs/redirects-rewrites)
 
-## Production build and hosting
+The API must allow the exact frontend origin, `https://olympic-nutrition-tracker-frontend.onrender.com`, in its `CORS_ALLOWED_ORIGINS` settings. Requests use `Content-Type` for JSON and `Authorization` for bearer tokens. The backend handles CORS preflights for cross-origin requests.
 
-```bash
-npm run build
-```
+## Authentication and browser security
 
-Serve `dist/app` over HTTPS. Forward `/api` and its subpaths to Spring Boot and
-serve `index.html` for Angular routes such as `/consultations`. Keep API errors
-on the API route so they reach the frontend with their original HTTP status.
+The sign-in form posts `username` and `password` to `/api/auth/login`. The API supplies the username, role, and JWT. Angular keeps the session in browser local storage, clears it on sign-out or expiry, and drops rejected sessions after an authenticated request receives HTTP `401`. The interceptor attaches the bearer token only to protected requests under the configured API origin and path.
 
-For a separately hosted API, set `apiUrl` in `src/environments/environment.prod.ts`
-to the public HTTPS API base URL without a trailing slash, then rebuild. Configure
-Spring Security CORS for the frontend origin, the methods it uses, and the
-`Authorization` and `Content-Type` headers. Angular bundles this URL as public
-configuration. Keep database credentials and the JWT signing key in the backend
-deployment's secret store.
+The frontend uses the token expiry and role for navigation and display. The backend verifies token signatures and enforces permissions. Keep database credentials and JWT signing keys in backend runtime configuration.
 
-Use a supported Angular and Node.js combination for production. This repository
-currently uses Angular 17.3, which supported Node.js 18 and 20 when it was maintained.
+## Verification and remaining work
 
----
+The production build was verified with Node.js 20.20.2. `npm test` prints `No tests configured`, and the project has no configured Angular test target or browser end-to-end suite. Public route and CORS checks establish connectivity. They do not validate authenticated browser workflows.
 
-# 🌐 Languages
-
-- 🇬🇧 English
-- 🇫🇷 Français
-
----
-
-# 🔒 Security
-
-The current version uses:
-
-- Spring Security
-- JWT Bearer authentication via `POST /api/auth/login`
-- Role-Based Access Control (ADMIN / COACH / ATHLETE)
-
-The frontend expects `/api/auth/login` to return `token`, `username`, and `role`.
-The server must supply the authenticated username and role. The frontend uses
-them to present the appropriate controls, while Spring Security must enforce the
-permissions and record-level access on each endpoint. Return HTTP 401 for an
-invalid or expired token and 403 when an authenticated user lacks permission.
-
-Keep local Postman workspaces and exports out of Git. Share only collections
-that use variables for credentials and URLs and contain synthetic sample data.
-
----
-
-# 📌 Future Improvements
-
-- User Registration
-- User Profile
-- Cloud Deployment
-- Unit & Integration Tests
-
----
-
-# 👩‍💻 Author
-
-**Eman Altohami**
-
-Bachelor Java Developer – Studi
-
-GitHub:
-https://github.com/eman-java-dev
+The UI supports sign-in and sign-out. Registration exists in the backend API. A registration screen, automated guard and interceptor tests, and browser tests for role-specific workflows remain follow-up work.
