@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Coach, CoachService } from '../../services/coach';
@@ -9,7 +9,7 @@ import { ListPagerComponent } from '../list-pager';
 
 @Component({
     selector: 'app-coaches',
-    imports: [CommonModule, FormsModule, ListPagerComponent],
+    imports: [FormsModule, ListPagerComponent],
     templateUrl: './coaches.html'
 })
 export class CoachesComponent implements OnInit {

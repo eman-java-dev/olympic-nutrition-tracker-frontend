@@ -6,7 +6,7 @@
     border-bottom-right-radius: 24px;
     overflow: hidden;
   "
->
+  >
   <video autoplay muted loop playsinline class="hero-video">
     <source src="assets/side.mp4" type="video/mp4" />
   </video>
@@ -25,205 +25,212 @@
 <section class="section">
   <div class="container">
 
-    <ng-container *ngFor="let key of [error(), listError(), lookupError()]">
-      <div *ngIf="key" role="alert" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
-        <div class="card-body" style="color:#ff4d4f;">{{ t(key) }}</div>
+    @for (key of [error(), listError(), lookupError()]; track key) {
+      @if (key) {
+        <div role="alert" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
+          <div class="card-body" style="color:#ff4d4f;">{{ t(key) }}</div>
+        </div>
+      }
+    }
+
+    @if (success()) {
+      <div role="status" class="card" style="margin-bottom:12px;">
+        <div class="card-body">{{ t(success()) }}</div>
       </div>
-    </ng-container>
+    }
 
-    <div *ngIf="success()" role="status" class="card" style="margin-bottom:12px;">
-      <div class="card-body">{{ t(success()) }}</div>
-    </div>
-
-    <div
-      *ngIf="!canCreateOrUpdate()"
-      class="card"
+    @if (!canCreateOrUpdate()) {
+      <div
+        class="card"
       style="
         margin-bottom: 12px;
         border-color: rgba(255, 209, 0, 0.35);
       "
-    >
-      <div class="card-body" style="color: var(--muted);">
-        {{ t('common.readOnlyCoach') }}
-      </div>
-    </div>
-
-    <form
-      *ngIf="canCreateOrUpdate()"
-      #f="ngForm"
-      (ngSubmit)="save(f)"
-      class="consultation-form"
-    >
-      <input
-        class="input"
-        type="datetime-local"
-        [attr.aria-label]="t('consult.when')"
-        name="scheduledAt"
-        [(ngModel)]="model.scheduledAt"
-        required
-      />
-
-      <select
-        class="input"
-        [attr.aria-label]="t('common.athlete')"
-        name="athleteId"
-        [(ngModel)]="model.athleteId"
-        required
-      >
-        <option [ngValue]="undefined">
-          {{ t('common.selectAthlete') }}
-        </option>
-
-        <option
-          *ngFor="let athlete of athletes()"
-          [ngValue]="athlete.id"
         >
-          {{ athlete.name }}
-        </option>
-      </select>
-
-      <select
-        class="input"
-        [attr.aria-label]="t('common.coach')"
-        name="coachId"
-        [(ngModel)]="model.coachId"
-        [disabled]="!canChooseCoach()"
-        required
-      >
-        <option [ngValue]="undefined">
-          {{ t('common.selectCoach') }}
-        </option>
-
-        <option
-          *ngFor="let coach of coaches()"
-          [ngValue]="coach.id"
-        >
-          {{ coach.name }}
-        </option>
-      </select>
-
-      <input
-        class="input"
-        type="text"
-        [attr.aria-label]="t('consult.placeholder')"
-        [placeholder]="t('consult.placeholder')"
-        name="message"
-        [(ngModel)]="model.message"
-        maxlength="300"
-        required
-      />
-
-      <button
-        class="btn btn-primary shine"
-        type="submit"
-        [disabled]="loading() || optionsLoading() || !!lookupError() || f.invalid"
-      >
-        {{ t(editingId() !== undefined ? 'common.update' : 'common.add') }}
-      </button>
-      <button *ngIf="editingId() !== undefined" class="btn btn-ghost shine" type="button"
-              (click)="resetForm(f)" [disabled]="loading()">
-        {{ t('common.cancel') }}
-      </button>
-      <small *ngIf="f.invalid && (f.dirty || f.submitted)" style="grid-column:1/-1;">
-        {{ t('validation.form') }}
-      </small>
-    </form>
-
-    <div style="height: 12px;"></div>
-
-    <button
-      class="btn btn-ghost shine"
-      type="button"
-      (click)="refreshPage()"
-      [disabled]="loading() || optionsLoading()"
-      style="margin-bottom: 12px;"
-    >
-      {{ t('common.refresh') }}
-    </button>
-
-    <div class="card">
-      <div class="card-body">
-
-        <div
-          *ngIf="loading()"
-          style="padding: 12px; color: var(--muted);"
-        >
-          {{ t('common.loading') }}
+        <div class="card-body" style="color: var(--muted);">
+          {{ t('common.readOnlyCoach') }}
         </div>
+      </div>
+    }
 
-        <table
-          class="table consultation-table"
-          *ngIf="!loading() && page()"
+    @if (canCreateOrUpdate()) {
+      <form
+        #f="ngForm"
+        (ngSubmit)="save(f)"
+        class="consultation-form"
         >
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>{{ t('consult.when') }}</th>
-              <th>{{ t('consult.message') }}</th>
-              <th>{{ t('common.athlete') }}</th>
-              <th>{{ t('common.coach') }}</th>
+        <input
+          class="input"
+          type="datetime-local"
+          [attr.aria-label]="t('consult.when')"
+          name="scheduledAt"
+          [(ngModel)]="model.scheduledAt"
+          required
+          />
+          <select
+            class="input"
+            [attr.aria-label]="t('common.athlete')"
+            name="athleteId"
+            [(ngModel)]="model.athleteId"
+            required
+            >
+            <option [ngValue]="undefined">
+              {{ t('common.selectAthlete') }}
+            </option>
+            @for (athlete of athletes(); track athlete) {
+              <option
+                [ngValue]="athlete.id"
+                >
+                {{ athlete.name }}
+              </option>
+            }
+          </select>
+          <select
+            class="input"
+            [attr.aria-label]="t('common.coach')"
+            name="coachId"
+            [(ngModel)]="model.coachId"
+            [disabled]="!canChooseCoach()"
+            required
+            >
+            <option [ngValue]="undefined">
+              {{ t('common.selectCoach') }}
+            </option>
+            @for (coach of coaches(); track coach) {
+              <option
+                [ngValue]="coach.id"
+                >
+                {{ coach.name }}
+              </option>
+            }
+          </select>
+          <input
+            class="input"
+            type="text"
+            [attr.aria-label]="t('consult.placeholder')"
+            [placeholder]="t('consult.placeholder')"
+            name="message"
+            [(ngModel)]="model.message"
+            maxlength="300"
+            required
+            />
+            <button
+              class="btn btn-primary shine"
+              type="submit"
+              [disabled]="loading() || optionsLoading() || !!lookupError() || f.invalid"
+              >
+              {{ t(editingId() !== undefined ? 'common.update' : 'common.add') }}
+            </button>
+            @if (editingId() !== undefined) {
+              <button class="btn btn-ghost shine" type="button"
+                (click)="resetForm(f)" [disabled]="loading()">
+                {{ t('common.cancel') }}
+              </button>
+            }
+            @if (f.invalid && (f.dirty || f.submitted)) {
+              <small style="grid-column:1/-1;">
+                {{ t('validation.form') }}
+              </small>
+            }
+          </form>
+        }
 
-              <th *ngIf="canCreateOrUpdate() || canDelete()">
-                {{ t('common.actions') }}
-              </th>
-            </tr>
-          </thead>
+        <div style="height: 12px;"></div>
 
-          <tbody>
-            <tr *ngFor="let consultation of list(); let i = index">
-              <td>{{ (page()?.number ?? 0) * (page()?.size ?? 0) + i + 1 }}</td>
+        <button
+          class="btn btn-ghost shine"
+          type="button"
+          (click)="refreshPage()"
+          [disabled]="loading() || optionsLoading()"
+          style="margin-bottom: 12px;"
+          >
+          {{ t('common.refresh') }}
+        </button>
 
-              <td>
-                <!-- Format the API’s timezone-free LocalDateTime without shifting its wall time. -->
-                {{
-                  (consultation.scheduledAt ? consultation.scheduledAt + 'Z' : null)
-                    | date: 'short' : 'UTC' : language()
-                }}
-              </td>
+        <div class="card">
+          <div class="card-body">
 
-              <td class="message-cell">
-                {{ consultation.message || '—' }}
-              </td>
+            @if (loading()) {
+              <div
+                style="padding: 12px; color: var(--muted);"
+                >
+                {{ t('common.loading') }}
+              </div>
+            }
 
-              <td>
-                {{ getAthleteName(consultation) }}
-              </td>
-
-              <td>
-                {{ getCoachName(consultation) }}
-              </td>
-
-              <td *ngIf="canCreateOrUpdate() || canDelete()">
-                <div
+            @if (!loading() && page()) {
+              <table
+                class="table consultation-table"
+                >
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>{{ t('consult.when') }}</th>
+                    <th>{{ t('consult.message') }}</th>
+                    <th>{{ t('common.athlete') }}</th>
+                    <th>{{ t('common.coach') }}</th>
+                    @if (canCreateOrUpdate() || canDelete()) {
+                      <th>
+                        {{ t('common.actions') }}
+                      </th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (consultation of list(); track consultation; let i = $index) {
+                    <tr>
+                      <td>{{ (page()?.number ?? 0) * (page()?.size ?? 0) + i + 1 }}</td>
+                      <td>
+                        <!-- Format the API’s timezone-free LocalDateTime without shifting its wall time. -->
+                        {{
+                        (consultation.scheduledAt ? consultation.scheduledAt + 'Z' : null)
+                        | date: 'short' : 'UTC' : language()
+                        }}
+                      </td>
+                      <td class="message-cell">
+                        {{ consultation.message || '—' }}
+                      </td>
+                      <td>
+                        {{ getAthleteName(consultation) }}
+                      </td>
+                      <td>
+                        {{ getCoachName(consultation) }}
+                      </td>
+                      @if (canCreateOrUpdate() || canDelete()) {
+                        <td>
+                          <div
                   style="
                     display: flex;
                     gap: 10px;
                     align-items: center;
                   "
-                >
-                  <button
-                    *ngIf="canCreateOrUpdate()"
-                    class="btn btn-edit shine"
-                    type="button"
-                    (click)="startEdit(consultation)"
-                  >
-                    {{ t('common.edit') }}
-                  </button>
-
-                  <button
-                    *ngIf="canDelete()"
-                    class="btn btn-danger shine"
-                    type="button"
-                    (click)="remove(consultation.id)"
-                  >
-                    {{ t('common.delete') }}
-                  </button>
-                </div>
-              </td>
-            </tr>
-
-            <tr *ngIf="!list().length">
-              <td
+                            >
+                            @if (canCreateOrUpdate()) {
+                              <button
+                                class="btn btn-edit shine"
+                                type="button"
+                                (click)="startEdit(consultation)"
+                                >
+                                {{ t('common.edit') }}
+                              </button>
+                            }
+                            @if (canDelete()) {
+                              <button
+                                class="btn btn-danger shine"
+                                type="button"
+                                (click)="remove(consultation.id)"
+                                >
+                                {{ t('common.delete') }}
+                              </button>
+                            }
+                          </div>
+                        </td>
+                      }
+                    </tr>
+                  }
+                  @if (!list().length) {
+                    <tr>
+                      <td
                 [attr.colspan]="
                   canCreateOrUpdate() || canDelete() ? 6 : 5
                 "
@@ -232,20 +239,22 @@
                   padding: 16px;
                   color: var(--muted);
                 "
-              >
-                {{ t('consult.noData') }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <app-list-pager
-          [page]="page()"
-          [disabled]="loading()"
-          (pageChange)="loadPageData($event)"
-        ></app-list-pager>
+                        >
+                        {{ t('consult.noData') }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+            <app-list-pager
+              [page]="page()"
+              [disabled]="loading()"
+              (pageChange)="loadPageData($event)"
+            ></app-list-pager>
+
+          </div>
+        </div>
 
       </div>
-    </div>
-
-  </div>
-</section>
+    </section>

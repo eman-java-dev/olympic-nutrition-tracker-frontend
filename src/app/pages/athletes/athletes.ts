@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Athlete, AthleteService } from '../../services/athlete';
@@ -9,7 +9,7 @@ import { ListPagerComponent } from '../list-pager';
 
 @Component({
     selector: 'app-athletes',
-    imports: [CommonModule, FormsModule, ListPagerComponent],
+    imports: [FormsModule, ListPagerComponent],
     templateUrl: './athletes.html',
     styleUrl: './athletes.css'
 })

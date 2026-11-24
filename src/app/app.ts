@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, inject } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { LangService } from './services/lang';
@@ -6,7 +6,7 @@ import { AuthService } from './services/auth';
 
 @Component({
     selector: 'app-root',
-    imports: [CommonModule, RouterOutlet, RouterLink],
+    imports: [RouterOutlet, RouterLink],
     templateUrl: './app.html',
     styleUrl: './app.css'
 })

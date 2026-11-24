@@ -6,7 +6,7 @@
     border-bottom-right-radius: 24px;
     overflow: hidden;
   "
->
+  >
   <video autoplay muted loop playsinline class="hero-video">
     <source src="assets/side.mp4" type="video/mp4" />
   </video>
@@ -22,33 +22,38 @@
 <section class="section">
   <div class="container">
 
-    <ng-container *ngFor="let key of [error(), listError(), lookupError()]">
-      <div *ngIf="key" role="alert" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
-        <div class="card-body" style="color:#ff4d4f;">{{ t(key) }}</div>
+    @for (key of [error(), listError(), lookupError()]; track key) {
+      @if (key) {
+        <div role="alert" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
+          <div class="card-body" style="color:#ff4d4f;">{{ t(key) }}</div>
+        </div>
+      }
+    }
+
+    @if (success()) {
+      <div role="status" class="card" style="margin-bottom:12px;">
+        <div class="card-body">{{ t(success()) }}</div>
       </div>
-    </ng-container>
+    }
 
-    <div *ngIf="success()" role="status" class="card" style="margin-bottom:12px;">
-      <div class="card-body">{{ t(success()) }}</div>
-    </div>
-
-    <div
-      *ngIf="!canCreateOrUpdate()"
-      class="card"
+    @if (!canCreateOrUpdate()) {
+      <div
+        class="card"
       style="
         margin-bottom: 12px;
         border-color: rgba(255, 209, 0, 0.35);
       "
-    >
-      <div class="card-body" style="color: var(--muted);">
-        {{ t('common.readOnlyCoach') }}
+        >
+        <div class="card-body" style="color: var(--muted);">
+          {{ t('common.readOnlyCoach') }}
+        </div>
       </div>
-    </div>
+    }
 
-    <form
-      *ngIf="canCreateOrUpdate()"
-      #f="ngForm"
-      (ngSubmit)="save(f)"
+    @if (canCreateOrUpdate()) {
+      <form
+        #f="ngForm"
+        (ngSubmit)="save(f)"
       style="
         display: grid;
         grid-template-columns:
@@ -56,244 +61,234 @@
         gap: 12px;
         align-items: center;
       "
-    >
-      <select
-        class="input"
-        [attr.aria-label]="t('common.athlete')"
-        name="athleteId"
-        [(ngModel)]="model.athleteId"
-        required
-      >
-        <option [ngValue]="undefined">
-          {{ t('common.selectAthlete') }}
-        </option>
-
-        <option
-          *ngFor="let athlete of athletes()"
-          [ngValue]="athlete.id"
         >
-          {{ athlete.name }}
-        </option>
-      </select>
-
-      <input
-        class="input"
-        type="date"
-        [attr.aria-label]="t('common.date')"
-        name="date"
-        [(ngModel)]="model.date"
-        required
-      />
-
-      <input
-        class="input"
-        type="number"
-        [attr.aria-label]="t('nutrition.cal')"
-        [placeholder]="t('nutrition.cal')"
-        name="calories"
-        [(ngModel)]="model.calories"
-        min="0"
-      />
-
-      <input
-        class="input"
-        type="number"
-        [attr.aria-label]="t('nutrition.protein')"
-        [placeholder]="t('nutrition.protein')"
-        name="protein"
-        [(ngModel)]="model.protein"
-        min="0"
-        step="1"
-      />
-
-      <input
-        class="input"
-        type="number"
-        [attr.aria-label]="t('nutrition.carbs')"
-        [placeholder]="t('nutrition.carbs')"
-        name="carbs"
-        [(ngModel)]="model.carbs"
-        min="0"
-        step="1"
-      />
-
-      <input
-        class="input"
-        type="number"
-        [attr.aria-label]="t('nutrition.fat')"
-        [placeholder]="t('nutrition.fat')"
-        name="fat"
-        [(ngModel)]="model.fat"
-        min="0"
-        step="1"
-      />
-
-      <input
-        class="input"
-        [attr.aria-label]="t('common.notes')"
-        [placeholder]="t('common.notes')"
-        name="notes"
-        [(ngModel)]="model.notes"
-        maxlength="500"
-      />
-
-      <button
-        class="btn btn-primary shine"
-        type="submit"
-        [disabled]="loading() || optionsLoading() || !!lookupError() || f.invalid"
-      >
-        {{ t(editingId() !== undefined ? 'common.update' : 'common.add') }}
-      </button>
-      <button *ngIf="editingId() !== undefined" class="btn btn-ghost shine" type="button"
-              (click)="resetForm(f)" [disabled]="loading()">
-        {{ t('common.cancel') }}
-      </button>
-      <small *ngIf="f.invalid && (f.dirty || f.submitted)" style="grid-column:1/-1;">
-        {{ t('validation.form') }}
-      </small>
-    </form>
-
-    <div style="height: 20px;"></div>
-
-    <div style="margin-bottom: 16px;">
-      <button
-        class="btn btn-ghost shine"
-        type="button"
-        (click)="refreshPage()"
-        [disabled]="loading() || optionsLoading()"
-      >
-        {{ t('common.refresh') }}
-      </button>
-
-      <span *ngIf="page() && !loading()" style="margin-left: 12px; color: #fff;">
-        {{ t('nutrition.summary') }} ·
-        {{ totalCalories | number: undefined : language() }} kcal |
-        {{ t('nutrition.protein') }} {{ totals.p | number: undefined : language() }} g |
-        {{ t('nutrition.carbs') }} {{ totals.c | number: undefined : language() }} g |
-        {{ t('nutrition.fat') }} {{ totals.f | number: undefined : language() }} g
-      </span>
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-
-        <div
-          *ngIf="loading()"
-          style="padding: 12px; color: var(--muted);"
-        >
-          {{ t('common.loading') }}
-        </div>
-
-        <table
-          *ngIf="!loading() && page()"
-          style="width: 100%; border-collapse: collapse;"
-        >
-          <thead style="background: #1f3f8a; color: #fff;">
-            <tr>
-              <th style="padding: 12px; text-align: left;">
-                {{ t('common.athlete') }}
-              </th>
-
-              <th style="padding: 12px; text-align: left;">
-                {{ t('common.date') }}
-              </th>
-
-              <th style="padding: 12px; text-align: left;">
-                {{ t('nutrition.cal') }}
-              </th>
-
-              <th style="padding: 12px; text-align: left;">
-                {{ t('nutrition.protein') }} (g)
-              </th>
-
-              <th style="padding: 12px; text-align: left;">
-                {{ t('nutrition.carbs') }} (g)
-              </th>
-
-              <th style="padding: 12px; text-align: left;">
-                {{ t('nutrition.fat') }} (g)
-              </th>
-
-              <th style="padding: 12px; text-align: left;">
-                {{ t('common.notes') }}
-              </th>
-
-              <th
-                *ngIf="canCreateOrUpdate() || canDelete()"
-                style="padding: 12px; text-align: left;"
+        <select
+          class="input"
+          [attr.aria-label]="t('common.athlete')"
+          name="athleteId"
+          [(ngModel)]="model.athleteId"
+          required
+          >
+          <option [ngValue]="undefined">
+            {{ t('common.selectAthlete') }}
+          </option>
+          @for (athlete of athletes(); track athlete) {
+            <option
+              [ngValue]="athlete.id"
               >
-                {{ t('common.actions') }}
-              </th>
-            </tr>
-          </thead>
+              {{ athlete.name }}
+            </option>
+          }
+        </select>
+        <input
+          class="input"
+          type="date"
+          [attr.aria-label]="t('common.date')"
+          name="date"
+          [(ngModel)]="model.date"
+          required
+          />
+          <input
+            class="input"
+            type="number"
+            [attr.aria-label]="t('nutrition.cal')"
+            [placeholder]="t('nutrition.cal')"
+            name="calories"
+            [(ngModel)]="model.calories"
+            min="0"
+            />
+            <input
+              class="input"
+              type="number"
+              [attr.aria-label]="t('nutrition.protein')"
+              [placeholder]="t('nutrition.protein')"
+              name="protein"
+              [(ngModel)]="model.protein"
+              min="0"
+              step="1"
+              />
+              <input
+                class="input"
+                type="number"
+                [attr.aria-label]="t('nutrition.carbs')"
+                [placeholder]="t('nutrition.carbs')"
+                name="carbs"
+                [(ngModel)]="model.carbs"
+                min="0"
+                step="1"
+                />
+                <input
+                  class="input"
+                  type="number"
+                  [attr.aria-label]="t('nutrition.fat')"
+                  [placeholder]="t('nutrition.fat')"
+                  name="fat"
+                  [(ngModel)]="model.fat"
+                  min="0"
+                  step="1"
+                  />
+                  <input
+                    class="input"
+                    [attr.aria-label]="t('common.notes')"
+                    [placeholder]="t('common.notes')"
+                    name="notes"
+                    [(ngModel)]="model.notes"
+                    maxlength="500"
+                    />
+                    <button
+                      class="btn btn-primary shine"
+                      type="submit"
+                      [disabled]="loading() || optionsLoading() || !!lookupError() || f.invalid"
+                      >
+                      {{ t(editingId() !== undefined ? 'common.update' : 'common.add') }}
+                    </button>
+                    @if (editingId() !== undefined) {
+                      <button class="btn btn-ghost shine" type="button"
+                        (click)="resetForm(f)" [disabled]="loading()">
+                        {{ t('common.cancel') }}
+                      </button>
+                    }
+                    @if (f.invalid && (f.dirty || f.submitted)) {
+                      <small style="grid-column:1/-1;">
+                        {{ t('validation.form') }}
+                      </small>
+                    }
+                  </form>
+                }
 
-          <tbody>
-            <tr
-              *ngFor="let entry of list()"
-              style="border-bottom: 1px solid var(--border);"
-            >
-              <td style="padding: 10px;">
-                {{ entry.athleteName || entry.athleteId || '—' }}
-              </td>
+                <div style="height: 20px;"></div>
 
-              <td style="padding: 10px;">
-                {{ entry.date | date: 'mediumDate' : undefined : language() }}
-              </td>
+                <div style="margin-bottom: 16px;">
+                  <button
+                    class="btn btn-ghost shine"
+                    type="button"
+                    (click)="refreshPage()"
+                    [disabled]="loading() || optionsLoading()"
+                    >
+                    {{ t('common.refresh') }}
+                  </button>
 
-              <td style="padding: 10px;">
-                {{ entry.calories }}
-              </td>
+                  @if (page() && !loading()) {
+                    <span style="margin-left: 12px; color: #fff;">
+                      {{ t('nutrition.summary') }} ·
+                      {{ totalCalories | number: undefined : language() }} kcal |
+                      {{ t('nutrition.protein') }} {{ totals.p | number: undefined : language() }} g |
+                      {{ t('nutrition.carbs') }} {{ totals.c | number: undefined : language() }} g |
+                      {{ t('nutrition.fat') }} {{ totals.f | number: undefined : language() }} g
+                    </span>
+                  }
+                </div>
 
-              <td style="padding: 10px;">
-                {{ entry.protein }}
-              </td>
+                <div class="card">
+                  <div class="card-body">
 
-              <td style="padding: 10px;">
-                {{ entry.carbs }}
-              </td>
+                    @if (loading()) {
+                      <div
+                        style="padding: 12px; color: var(--muted);"
+                        >
+                        {{ t('common.loading') }}
+                      </div>
+                    }
 
-              <td style="padding: 10px;">
-                {{ entry.fat }}
-              </td>
-
-              <td style="padding: 10px;">
-                {{ entry.notes || '—' }}
-              </td>
-
-              <td
-                *ngIf="canCreateOrUpdate() || canDelete()"
-                style="padding: 10px;"
-              >
-                <div
+                    @if (!loading() && page()) {
+                      <table
+                        style="width: 100%; border-collapse: collapse;"
+                        >
+                        <thead style="background: #1f3f8a; color: #fff;">
+                          <tr>
+                            <th style="padding: 12px; text-align: left;">
+                              {{ t('common.athlete') }}
+                            </th>
+                            <th style="padding: 12px; text-align: left;">
+                              {{ t('common.date') }}
+                            </th>
+                            <th style="padding: 12px; text-align: left;">
+                              {{ t('nutrition.cal') }}
+                            </th>
+                            <th style="padding: 12px; text-align: left;">
+                              {{ t('nutrition.protein') }} (g)
+                            </th>
+                            <th style="padding: 12px; text-align: left;">
+                              {{ t('nutrition.carbs') }} (g)
+                            </th>
+                            <th style="padding: 12px; text-align: left;">
+                              {{ t('nutrition.fat') }} (g)
+                            </th>
+                            <th style="padding: 12px; text-align: left;">
+                              {{ t('common.notes') }}
+                            </th>
+                            @if (canCreateOrUpdate() || canDelete()) {
+                              <th
+                                style="padding: 12px; text-align: left;"
+                                >
+                                {{ t('common.actions') }}
+                              </th>
+                            }
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (entry of list(); track entry) {
+                            <tr
+                              style="border-bottom: 1px solid var(--border);"
+                              >
+                              <td style="padding: 10px;">
+                                {{ entry.athleteName || entry.athleteId || '—' }}
+                              </td>
+                              <td style="padding: 10px;">
+                                {{ entry.date | date: 'mediumDate' : undefined : language() }}
+                              </td>
+                              <td style="padding: 10px;">
+                                {{ entry.calories }}
+                              </td>
+                              <td style="padding: 10px;">
+                                {{ entry.protein }}
+                              </td>
+                              <td style="padding: 10px;">
+                                {{ entry.carbs }}
+                              </td>
+                              <td style="padding: 10px;">
+                                {{ entry.fat }}
+                              </td>
+                              <td style="padding: 10px;">
+                                {{ entry.notes || '—' }}
+                              </td>
+                              @if (canCreateOrUpdate() || canDelete()) {
+                                <td
+                                  style="padding: 10px;"
+                                  >
+                                  <div
                   style="
                     display: flex;
                     gap: 10px;
                     align-items: center;
                   "
-                >
-                  <button
-                    *ngIf="canCreateOrUpdate()"
-                    class="btn btn-edit shine"
-                    type="button"
-                    (click)="startEdit(entry)"
-                  >
-                    {{ t('common.edit') }}
-                  </button>
-
-                  <button
-                    *ngIf="canDelete()"
-                    class="btn btn-danger shine"
-                    type="button"
-                    (click)="remove(entry.id)"
-                  >
-                    {{ t('common.delete') }}
-                  </button>
-                </div>
-              </td>
-            </tr>
-
-            <tr *ngIf="!list().length">
-              <td
+                                    >
+                                    @if (canCreateOrUpdate()) {
+                                      <button
+                                        class="btn btn-edit shine"
+                                        type="button"
+                                        (click)="startEdit(entry)"
+                                        >
+                                        {{ t('common.edit') }}
+                                      </button>
+                                    }
+                                    @if (canDelete()) {
+                                      <button
+                                        class="btn btn-danger shine"
+                                        type="button"
+                                        (click)="remove(entry.id)"
+                                        >
+                                        {{ t('common.delete') }}
+                                      </button>
+                                    }
+                                  </div>
+                                </td>
+                              }
+                            </tr>
+                          }
+                          @if (!list().length) {
+                            <tr>
+                              <td
                 [attr.colspan]="
                   canCreateOrUpdate() || canDelete() ? 8 : 7
                 "
@@ -302,20 +297,22 @@
                   padding: 16px;
                   color: var(--muted);
                 "
-              >
-                {{ t('nutrition.noData') }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <app-list-pager
-          [page]="page()"
-          [disabled]="loading()"
-          (pageChange)="loadPageData($event)"
-        ></app-list-pager>
+                                >
+                                {{ t('nutrition.noData') }}
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    }
+                    <app-list-pager
+                      [page]="page()"
+                      [disabled]="loading()"
+                      (pageChange)="loadPageData($event)"
+                    ></app-list-pager>
 
-      </div>
-    </div>
+                  </div>
+                </div>
 
-  </div>
-</section>
+              </div>
+            </section>

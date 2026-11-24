@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { Location } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
@@ -7,7 +7,7 @@ import { LangService } from '../../services/lang';
 
 @Component({
     selector: 'app-signin',
-    imports: [CommonModule, FormsModule],
+    imports: [FormsModule],
     templateUrl: './signin.html',
     styleUrl: './signin.css'
 })
