@@ -11,11 +11,10 @@ import { ListPagerComponent } from '../list-pager';
 import { localDateTime } from '../local-date';
 
 @Component({
-  standalone: true,
-  selector: 'app-consultations',
-  imports: [CommonModule, FormsModule, ListPagerComponent],
-  templateUrl: './consultations.html',
-  styleUrl: './consultations.css'
+    selector: 'app-consultations',
+    imports: [CommonModule, FormsModule, ListPagerComponent],
+    templateUrl: './consultations.html',
+    styleUrl: './consultations.css'
 })
 export class ConsultationsComponent implements OnInit {
   private service = inject(ConsultationService);

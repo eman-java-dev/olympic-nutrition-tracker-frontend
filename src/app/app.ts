@@ -5,11 +5,10 @@ import { LangService } from './services/lang';
 import { AuthService } from './services/auth';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+    selector: 'app-root',
+    imports: [CommonModule, RouterOutlet, RouterLink],
+    templateUrl: './app.html',
+    styleUrl: './app.css'
 })
 export class AppComponent {
   year = new Date().getFullYear();

@@ -8,11 +8,10 @@ import { LangService } from '../../services/lang';
 import { ListPagerComponent } from '../list-pager';
 
 @Component({
-  standalone: true,
-  selector: 'app-athletes',
-  imports: [CommonModule, FormsModule, ListPagerComponent],
-  templateUrl: './athletes.html',
-  styleUrl: './athletes.css'
+    selector: 'app-athletes',
+    imports: [CommonModule, FormsModule, ListPagerComponent],
+    templateUrl: './athletes.html',
+    styleUrl: './athletes.css'
 })
 export class AthletesComponent implements OnInit {
   private service = inject(AthleteService);

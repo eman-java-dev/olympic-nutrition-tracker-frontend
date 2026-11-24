@@ -6,11 +6,10 @@ import { AuthService } from '../../services/auth';
 import { LangService } from '../../services/lang';
 
 @Component({
-  standalone: true,
-  selector: 'app-signin',
-  imports: [CommonModule, FormsModule],
-  templateUrl: './signin.html',
-  styleUrl: './signin.css',
+    selector: 'app-signin',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './signin.html',
+    styleUrl: './signin.css'
 })
 export class SignInComponent {
   private router = inject(Router);

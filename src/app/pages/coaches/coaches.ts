@@ -8,10 +8,9 @@ import { LangService } from '../../services/lang';
 import { ListPagerComponent } from '../list-pager';
 
 @Component({
-  standalone: true,
-  selector: 'app-coaches',
-  imports: [CommonModule, FormsModule, ListPagerComponent],
-  templateUrl: './coaches.html'
+    selector: 'app-coaches',
+    imports: [CommonModule, FormsModule, ListPagerComponent],
+    templateUrl: './coaches.html'
 })
 export class CoachesComponent implements OnInit {
   private service = inject(CoachService);

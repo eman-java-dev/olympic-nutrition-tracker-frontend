@@ -11,11 +11,10 @@ import { ListPagerComponent } from '../list-pager';
 import { localDateTime } from '../local-date';
 
 @Component({
-  standalone: true,
-  selector: 'app-nutrition',
-  imports: [CommonModule, FormsModule, ListPagerComponent],
-  templateUrl: './nutrition.html',
-  styleUrl: './nutrition.css'
+    selector: 'app-nutrition',
+    imports: [CommonModule, FormsModule, ListPagerComponent],
+    templateUrl: './nutrition.html',
+    styleUrl: './nutrition.css'
 })
 export class NutritionComponent implements OnInit {
   private service = inject(NutritionService);
