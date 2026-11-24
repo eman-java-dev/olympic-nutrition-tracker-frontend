@@ -9,12 +9,15 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:4200',
     channel: 'chrome',
+    launchOptions: {
+      args: ['--proxy-server=http://127.0.0.1:1', '--proxy-bypass-list=localhost;127.0.0.1'],
+    },
     trace: 'off',
     video: 'off',
     screenshot: 'off',
   },
   webServer: {
-    command: 'npm exec -- ng serve --configuration e2e --host localhost --port 4200',
+    command: 'node e2e/serve.mjs',
     url: 'http://localhost:4200',
     reuseExistingServer: false,
     timeout: 120_000,

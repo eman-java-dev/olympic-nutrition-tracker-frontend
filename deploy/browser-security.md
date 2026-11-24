@@ -15,3 +15,5 @@ default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src
 Set `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, and `Permissions-Policy: camera=(), microphone=(), geolocation=()` on the same path. Capture sanitized response headers from a direct-route request after deploying to staging. For rollback, verify the effective static headers and rewrites independently of the previous artifact. Render retains those settings during rollback. [Render rollback behavior](https://render.com/docs/rollbacks)
 
 The recommended header values are a staging candidate. Applying them in production requires approval of the exact service, artifact and tested settings.
+
+The [hosted browser job](ci-browser.md) uses an optimized loopback bundle and applies the local equivalent of this CSP through the test HTTP server. Render header and rewrite settings require separate staging evidence.

@@ -39,6 +39,10 @@
               },
               "outputHashing": "all"
             },
+            "e2e": {
+              "outputPath": "dist/e2e",
+              "fileReplacements": []
+            },
             "development": {
               "optimization": false,
               "sourceMap": true
@@ -50,13 +54,7 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": { "buildTarget": "app:build:production" },
-            "development": { "buildTarget": "app:build:development" },
-            "e2e": {
-              "buildTarget": "app:build:development",
-              "liveReload": false,
-              "hmr": false,
-              "headers": { "Content-Security-Policy": "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com; media-src 'self' blob:; font-src 'self'; connect-src 'self' http://localhost:8080; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; object-src 'none'" }
-            }
+            "development": { "buildTarget": "app:build:development" }
           },
           "defaultConfiguration": "development"
         },

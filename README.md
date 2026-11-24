@@ -78,6 +78,6 @@ The frontend uses the token expiry and role for navigation and display. The back
 Run `npm test` for the Angular browser suite in ChromeHeadless. Set `CHROME_BIN` if Chrome is installed in a nonstandard location.
 Run `npm run build` for production assets and `npm audit --audit-level=high` for the lockfile dependency check.
 
-The optional Playwright suite uses only the local frontend and a disposable backend. Start the backend fixture at `http://localhost:8080` with the synthetic accounts seeded by the backend fixture script. Set `BROWSER_TEST_PASSWORD` in the local environment to the generated fixture password, then run `npm run test:e2e`. Playwright starts the local frontend using the CSP-enabled e2e serve configuration and uses installed Chrome. Traces, screenshots and videos are disabled.
+The five Playwright workflows run in [hosted browser CI](deploy/ci-browser.md) against an immutable backend revision and disposable MySQL. To run them locally, start the synthetic fixture backend at http://localhost:8080, set BROWSER_TEST_PASSWORD, then run npm run build:e2e followed by npm run test:e2e. The local server serves the optimized loopback build with the test CSP. Chrome is required locally.
 
 The UI supports sign-in and sign-out. Registration remains available through the backend API. See [the session decision and staging header policy](deploy/browser-security.md).
