@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Consultation, ConsultationService } from '../../services/consultation';
 import { Athlete, AthleteService } from '../../services/athlete';
@@ -11,11 +11,11 @@ import { ListPagerComponent } from '../list-pager';
 import { localDateTime } from '../local-date';
 
 @Component({
-  standalone: true,
-  selector: 'app-consultations',
-  imports: [CommonModule, FormsModule, ListPagerComponent],
-  templateUrl: './consultations.html',
-  styleUrl: './consultations.css'
+    selector: 'app-consultations',
+    imports: [CommonModule, FormsModule, ListPagerComponent],
+    templateUrl: './consultations.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './consultations.css'
 })
 export class ConsultationsComponent implements OnInit {
   private service = inject(ConsultationService);
@@ -73,7 +73,6 @@ export class ConsultationsComponent implements OnInit {
     try {
       this.page.set(await this.service.listPage(page));
     } catch (error) {
-      console.error(error);
       this.page.set(null);
       this.listError.set(apiErrorKey(error, 'error.load'));
     } finally {
@@ -98,7 +97,6 @@ export class ConsultationsComponent implements OnInit {
       this.athletes.set(athletes);
       this.coaches.set(coaches);
     } catch (error) {
-      console.error(error);
       this.lookupError.set('error.lookups');
     } finally {
       this.optionsLoading.set(false);
@@ -163,7 +161,6 @@ export class ConsultationsComponent implements OnInit {
       this.success.set(id === undefined ? 'common.created' : 'common.updated');
       await this.loadPageData(id === undefined ? 0 : this.page()?.number ?? 0);
     } catch (error) {
-      console.error(error);
       const key = apiErrorKey(error, 'error.save');
       this.error.set(key === 'error.forbidden' && this.auth.hasRole('COACH')
         ? 'consult.assignmentRequired'
@@ -194,7 +191,6 @@ export class ConsultationsComponent implements OnInit {
       this.success.set('common.deleted');
       await this.loadPageData();
     } catch (error) {
-      console.error(error);
       this.error.set(apiErrorKey(error, 'error.delete'));
     } finally {
       this.loading.set(false);

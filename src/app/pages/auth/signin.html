@@ -12,7 +12,7 @@
       (mousemove)="onMove($event)"
       (mouseleave)="onLeave()"
       style="--rx:0deg; --ry:0deg;"
-    >
+      >
       <span class="kicker">{{ t('brand') }}</span>
 
       <h1>{{ t('auth.title') }}</h1>
@@ -21,16 +21,17 @@
         {{ t('auth.lead') }}
       </p>
 
-      <div
-        *ngIf="error || sessionMessage as message"
-        role="alert"
-        class="card"
-        style="margin-bottom:14px; border-color:#ff4d4f;"
-      >
-        <div class="card-body" style="color:#ff4d4f; padding:12px;">
-          {{ t(message) }}
+      @if (error || sessionMessage) {
+        <div
+          role="alert"
+          class="card"
+          style="margin-bottom:14px; border-color:#ff4d4f;"
+          >
+          <div class="card-body" style="color:#ff4d4f; padding:12px;">
+            {{ errorMessage }}
+          </div>
         </div>
-      </div>
+      }
 
       <form #f="ngForm" (ngSubmit)="login(f)" class="signin-form" novalidate>
         <label class="label" for="username">
@@ -45,50 +46,51 @@
           [(ngModel)]="username"
           autocomplete="username"
           required
-        />
+          />
 
-        <label class="label" for="password">
-          {{ t('auth.password') }}
-        </label>
+          <label class="label" for="password">
+            {{ t('auth.password') }}
+          </label>
 
-        <input
-          id="password"
-          class="input"
-          type="password"
-          name="password"
-          [(ngModel)]="password"
-          autocomplete="current-password"
-          required
-        />
+          <input
+            id="password"
+            class="input"
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            autocomplete="current-password"
+            required
+            />
 
-        <div class="actions">
-          <button
-            type="submit"
-            class="btn btn-primary"
-            [disabled]="loading || !f.valid"
-          >
-            <span class="btn-content">
-              <span
-                *ngIf="loading"
-                class="spinner"
-                aria-hidden="true"
-              ></span>
+            <div class="actions" [attr.aria-busy]="loading">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="loading || !f.valid"
+                >
+                <span class="btn-content">
+                  @if (loading) {
+                    <span
+                      class="spinner"
+                      aria-hidden="true"
+                    ></span>
+                  }
 
-              {{ t(loading ? 'auth.loading' : 'auth.login') }}
-            </span>
-          </button>
+                  {{ t(loading ? 'auth.loading' : 'auth.login') }}
+                </span>
+              </button>
 
-          <button
-            type="button"
-            class="btn btn-ghost"
-            (click)="back()"
-            [disabled]="loading || !canGoBack"
-          >
-            {{ t('auth.back') }}
-          </button>
-        </div>
+              <button
+                type="button"
+                class="btn btn-ghost"
+                (click)="back()"
+                [disabled]="loading || !canGoBack"
+                >
+                {{ t('auth.back') }}
+              </button>
+            </div>
 
-      </form>
-    </article>
-  </div>
-</section>
+          </form>
+        </article>
+      </div>
+    </section>

@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Coach, CoachService } from '../../services/coach';
 import { apiErrorKey, ListPage } from '../../services/api';
@@ -8,10 +8,10 @@ import { LangService } from '../../services/lang';
 import { ListPagerComponent } from '../list-pager';
 
 @Component({
-  standalone: true,
-  selector: 'app-coaches',
-  imports: [CommonModule, FormsModule, ListPagerComponent],
-  templateUrl: './coaches.html'
+    selector: 'app-coaches',
+    imports: [FormsModule, ListPagerComponent],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    templateUrl: './coaches.html'
 })
 export class CoachesComponent implements OnInit {
   private service = inject(CoachService);
@@ -48,7 +48,6 @@ export class CoachesComponent implements OnInit {
     try {
       this.page.set(await this.service.listPage(page));
     } catch (error) {
-      console.error(error);
       this.page.set(null);
       this.listError.set(apiErrorKey(error, 'error.load'));
     } finally {
@@ -111,7 +110,6 @@ export class CoachesComponent implements OnInit {
       this.success.set(id === undefined ? 'common.created' : 'common.updated');
       await this.loadCoaches(id === undefined ? 0 : this.page()?.number ?? 0);
     } catch (error) {
-      console.error(error);
       this.error.set(apiErrorKey(error, 'error.save'));
     } finally {
       this.loading.set(false);
@@ -139,7 +137,6 @@ export class CoachesComponent implements OnInit {
       this.success.set('common.deleted');
       await this.loadCoaches();
     } catch (error) {
-      console.error(error);
       this.error.set(apiErrorKey(error, 'error.delete'));
     } finally {
       this.loading.set(false);

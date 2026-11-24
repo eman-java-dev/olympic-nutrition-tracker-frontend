@@ -1,5 +1,7 @@
-import { DOCUMENT } from '@angular/common';
-import { Injectable, inject, signal } from '@angular/core';
+
+import { Injectable, inject, signal, DOCUMENT } from '@angular/core';
+
+import { readLocalPreference, writeLocalPreference } from './browser-storage';
 
 type Lang = 'en' | 'fr';
 type Dictionary = Record<string, Record<Lang, string>>;
@@ -109,6 +111,10 @@ const translations: Dictionary = {
   'auth.login': { en: 'Sign in', fr: 'Se connecter' },
   'auth.loading': { en: 'Signing in…', fr: 'Connexion…' },
   'auth.back': { en: 'Back', fr: 'Retour' },
+  'auth.throttled': { en: 'Too many attempts. Wait before trying again.', fr: 'Trop de tentatives. Patientez avant de r?essayer.' },
+  'auth.retryAfter': { en: 'Try again in about {seconds} seconds.', fr: 'R?essayez dans environ {seconds} secondes.' },
+  'error.throttled': { en: 'Too many requests. Wait before trying again.', fr: 'Trop de requ?tes. Patientez avant de r?essayer.' },
+  'error.writeTimeout': { en: 'The server did not confirm the change. Refresh to check before retrying.', fr: 'Le serveur n?a pas confirm? la modification. Actualisez les donn?es avant de r?essayer.' },
   'auth.credentials': { en: 'Incorrect username or password.', fr: 'Nom d’utilisateur ou mot de passe incorrect.' },
   'auth.forbidden': { en: 'The server denied sign-in for this account.', fr: 'Le serveur a refusé la connexion à ce compte.' },
   'auth.unavailable': { en: 'The server is unavailable. Check your connection and try again.', fr: 'Le serveur est indisponible. Vérifiez votre connexion et réessayez.' },
@@ -122,7 +128,7 @@ const translations: Dictionary = {
 @Injectable({ providedIn: 'root' })
 export class LangService {
   private readonly document = inject(DOCUMENT);
-  private readonly current = signal<Lang>(localStorage.getItem('lang') === 'fr' ? 'fr' : 'en');
+  private readonly current = signal<Lang>(readLocalPreference('lang') === 'fr' ? 'fr' : 'en');
   readonly lang = this.current.asReadonly();
 
   constructor() {
@@ -132,7 +138,7 @@ export class LangService {
   setLang(language: Lang): void {
     this.current.set(language);
     this.document.documentElement.lang = language;
-    localStorage.setItem('lang', language);
+    writeLocalPreference('lang', language);
   }
 
   t(key: string): string {

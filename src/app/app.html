@@ -4,13 +4,15 @@
       {{ t('brand') }}
     </a>
 
-    <div class="menu" role="menubar" *ngIf="auth.isAuthenticated()">
-      <a class="shine" routerLink="/home">{{ t('nav.home') }}</a>
-      <a class="shine" routerLink="/athletes">{{ t('nav.athletes') }}</a>
-      <a class="shine" routerLink="/nutrition">{{ t('nav.nutrition') }}</a>
-      <a class="shine" routerLink="/consultations">{{ t('nav.consultations') }}</a>
-      <a class="shine" routerLink="/coaches">{{ t('nav.coaches') }}</a>
-    </div>
+    @if (auth.isAuthenticated()) {
+      <div class="menu" role="menubar">
+        <a class="shine" routerLink="/home">{{ t('nav.home') }}</a>
+        <a class="shine" routerLink="/athletes">{{ t('nav.athletes') }}</a>
+        <a class="shine" routerLink="/nutrition">{{ t('nav.nutrition') }}</a>
+        <a class="shine" routerLink="/consultations">{{ t('nav.consultations') }}</a>
+        <a class="shine" routerLink="/coaches">{{ t('nav.coaches') }}</a>
+      </div>
+    }
 
     <div style="display:flex; gap:8px; align-items:center">
       <button class="btn btn-ghost" type="button" (click)="switch('en')" [disabled]="current() === 'en'">
@@ -21,17 +23,23 @@
         FR
       </button>
 
-      <span *ngIf="auth.isAuthenticated()" style="color:var(--muted); font-size:13px;">
-        {{ auth.currentUser()?.username }} - {{ auth.currentUser()?.role }}
-      </span>
+      @if (auth.isAuthenticated()) {
+        <span style="color:var(--muted); font-size:13px;">
+          {{ auth.currentUser()?.username }} - {{ auth.currentUser()?.role }}
+        </span>
+      }
 
-      <a *ngIf="!auth.isAuthenticated()" class="btn btn-primary shine" routerLink="/signin">
-        {{ t('nav.signin') }}
-      </a>
+      @if (!auth.isAuthenticated()) {
+        <a class="btn btn-primary shine" routerLink="/signin">
+          {{ t('nav.signin') }}
+        </a>
+      }
 
-      <button *ngIf="auth.isAuthenticated()" class="btn btn-danger shine" type="button" (click)="logout()">
-        {{ t('nav.signout') }}
-      </button>
+      @if (auth.isAuthenticated()) {
+        <button class="btn btn-danger shine" type="button" (click)="logout()">
+          {{ t('nav.signout') }}
+        </button>
+      }
     </div>
   </div>
 </nav>

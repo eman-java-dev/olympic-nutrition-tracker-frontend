@@ -1,16 +1,16 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Location } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { LangService } from '../../services/lang';
 
 @Component({
-  standalone: true,
-  selector: 'app-signin',
-  imports: [CommonModule, FormsModule],
-  templateUrl: './signin.html',
-  styleUrl: './signin.css',
+    selector: 'app-signin',
+    imports: [FormsModule],
+    templateUrl: './signin.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './signin.css'
 })
 export class SignInComponent {
   private router = inject(Router);
@@ -19,6 +19,13 @@ export class SignInComponent {
   private lang = inject(LangService);
 
   t = (key: string) => this.lang.t(key);
+
+  get errorMessage(): string {
+    const retry = this.auth.retryAfterSeconds();
+    return this.error === 'auth.throttled' && retry !== null
+      ? this.t('auth.retryAfter').replace('{seconds}', String(retry))
+      : this.t(this.error || this.sessionMessage);
+  }
 
   get canGoBack(): boolean {
     return window.history.length > 1;

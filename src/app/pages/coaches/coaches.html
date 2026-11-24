@@ -2,160 +2,173 @@
   <h2>{{ t('coaches.title') }}</h2>
   <p style="color:var(--muted)">{{ t('coaches.help') }}</p>
 
-  <ng-container *ngFor="let key of [error(), listError()]">
-    <div *ngIf="key" role="alert" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
-      <div class="card-body" style="color:#ff4d4f;">{{ t(key) }}</div>
-    </div>
-  </ng-container>
-
-  <div *ngIf="success()" role="status" class="card" style="margin-bottom:12px;">
-    <div class="card-body">{{ t(success()) }}</div>
-  </div>
-
-  <div
-    *ngIf="!canManageCoaches()"
-    class="card"
-    style="margin-bottom:12px; border-color:rgba(255,209,0,.35);"
-  >
-    <div class="card-body" style="color:var(--muted);">
-      {{ t('common.readOnlyAdmin') }}
-    </div>
-  </div>
-
-  <form
-    *ngIf="canManageCoaches()"
-    #f="ngForm"
-    (ngSubmit)="save(f)"
-    style="display:grid; grid-template-columns:repeat(4,1fr) auto; gap:12px; margin:16px 0; align-items:center;"
-  >
-    <input
-      class="input"
-      [attr.aria-label]="t('common.name')"
-      [placeholder]="t('common.name')"
-      maxlength="120"
-      name="name"
-      [(ngModel)]="model.name"
-      required
-    />
-
-    <input
-      class="input"
-      [attr.aria-label]="t('coaches.spec')"
-      [placeholder]="t('coaches.spec')"
-      maxlength="120"
-      name="specialty"
-      [(ngModel)]="model.specialty"
-    />
-
-    <input
-      class="input"
-      [attr.aria-label]="t('coaches.email')"
-      [placeholder]="t('coaches.email')"
-      maxlength="160"
-      name="email"
-      [(ngModel)]="model.email"
-      type="email"
-      email
-    />
-
-    <input
-      class="input"
-      [attr.aria-label]="t('coaches.phone')"
-      [placeholder]="t('coaches.phone')"
-      maxlength="40"
-      name="phone"
-      [(ngModel)]="model.phone"
-    />
-
-    <button class="btn btn-primary shine" type="submit" [disabled]="loading() || f.invalid">
-      {{ t(editingId() !== undefined ? 'common.update' : 'common.add') }}
-    </button>
-
-    <button
-      class="btn btn-ghost shine"
-      *ngIf="editingId() !== undefined"
-      type="button"
-      (click)="cancel(f)"
-    >
-      {{ t('common.cancel') }}
-    </button>
-    <small *ngIf="f.invalid && (f.dirty || f.submitted)" style="grid-column:1/-1;">
-      {{ t(f.form.hasError('email', 'email') ? 'validation.email' : 'validation.form') }}
-    </small>
-  </form>
-
-  <button
-    class="btn btn-ghost shine"
-    type="button"
-    (click)="loadCoaches()"
-    [disabled]="loading()"
-    style="margin-bottom:12px;"
-  >
-    {{ t('common.refresh') }}
-  </button>
-
-  <div class="card">
-    <div class="card-body">
-      <div *ngIf="loading()" style="padding:12px; color:var(--muted)">
-        {{ t('common.loading') }}
+  @for (key of [error(), listError()]; track key) {
+    @if (key) {
+      <div role="alert" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
+        <div class="card-body" style="color:#ff4d4f;">{{ t(key) }}</div>
       </div>
+    }
+  }
 
-      <table class="table" *ngIf="!loading() && page()">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>{{ t('common.name') }}</th>
-            <th>{{ t('coaches.spec') }}</th>
-            <th>{{ t('coaches.email') }}</th>
-            <th>{{ t('coaches.phone') }}</th>
-            <th *ngIf="canManageCoaches()">{{ t('common.actions') }}</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr *ngFor="let c of list(); index as i">
-            <td>{{ (page()?.number ?? 0) * (page()?.size ?? 0) + i + 1 }}</td>
-            <td>{{ c.name }}</td>
-            <td>{{ c.specialty || '-' }}</td>
-            <td>{{ c.email || '-' }}</td>
-            <td>{{ c.phone || '-' }}</td>
-
-            <td *ngIf="canManageCoaches()">
-              <div style="display:flex; gap:10px; align-items:center; justify-content:center;">
-                <button
-                  class="btn btn-edit shine"
-                  type="button"
-                  (click)="edit(c)"
-                >
-                  {{ t('common.edit') }}
-                </button>
-
-                <button
-                  class="btn btn-danger shine"
-                  type="button"
-                  (click)="remove(c.id)"
-                >
-                  {{ t('common.delete') }}
-                </button>
-              </div>
-            </td>
-          </tr>
-
-          <tr *ngIf="!list().length">
-            <td
-              [attr.colspan]="canManageCoaches() ? 6 : 5"
-              style="color:var(--muted); text-align:center; padding:16px;"
-            >
-              {{ t('coaches.noData') }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <app-list-pager
-        [page]="page()"
-        [disabled]="loading()"
-        (pageChange)="loadCoaches($event)"
-      ></app-list-pager>
+  @if (success()) {
+    <div role="status" class="card" style="margin-bottom:12px;">
+      <div class="card-body">{{ t(success()) }}</div>
     </div>
-  </div>
-</div>
+  }
+
+  @if (!canManageCoaches()) {
+    <div
+      class="card"
+      style="margin-bottom:12px; border-color:rgba(255,209,0,.35);"
+      >
+      <div class="card-body" style="color:var(--muted);">
+        {{ t('common.readOnlyAdmin') }}
+      </div>
+    </div>
+  }
+
+  @if (canManageCoaches()) {
+    <form
+      #f="ngForm"
+      (ngSubmit)="save(f)"
+      class="record-form"
+      [attr.aria-busy]="loading()"
+      >
+      <input
+        class="input"
+        [attr.aria-label]="t('common.name')"
+        [placeholder]="t('common.name')"
+        maxlength="120"
+        name="name"
+        [(ngModel)]="model.name"
+        required
+        />
+        <input
+          class="input"
+          [attr.aria-label]="t('coaches.spec')"
+          [placeholder]="t('coaches.spec')"
+          maxlength="120"
+          name="specialty"
+          [(ngModel)]="model.specialty"
+          />
+          <input
+            class="input"
+            [attr.aria-label]="t('coaches.email')"
+            [placeholder]="t('coaches.email')"
+            maxlength="160"
+            name="email"
+            [(ngModel)]="model.email"
+            type="email"
+            email
+            />
+            <input
+              class="input"
+              [attr.aria-label]="t('coaches.phone')"
+              [placeholder]="t('coaches.phone')"
+              maxlength="40"
+              name="phone"
+              [(ngModel)]="model.phone"
+              />
+              <button class="btn btn-primary shine" type="submit" [disabled]="loading() || f.invalid">
+                {{ t(editingId() !== undefined ? 'common.update' : 'common.add') }}
+              </button>
+              @if (editingId() !== undefined) {
+                <button
+                  class="btn btn-ghost shine"
+                  type="button"
+                  (click)="cancel(f)"
+                  >
+                  {{ t('common.cancel') }}
+                </button>
+              }
+              @if (f.invalid && (f.dirty || f.submitted)) {
+                <small style="grid-column:1/-1;">
+                  {{ t(f.form.hasError('email', 'email') ? 'validation.email' : 'validation.form') }}
+                </small>
+              }
+            </form>
+          }
+
+          <button
+            class="btn btn-ghost shine"
+            type="button"
+            (click)="loadCoaches()"
+            [disabled]="loading()"
+            style="margin-bottom:12px;"
+            >
+            {{ t('common.refresh') }}
+          </button>
+
+          <div class="card">
+            <div class="card-body">
+              @if (loading()) {
+                <div style="padding:12px; color:var(--muted)">
+                  {{ t('common.loading') }}
+                </div>
+              }
+
+              @if (!loading() && page()) {
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>{{ t('common.name') }}</th>
+                      <th>{{ t('coaches.spec') }}</th>
+                      <th>{{ t('coaches.email') }}</th>
+                      <th>{{ t('coaches.phone') }}</th>
+                      @if (canManageCoaches()) {
+                        <th>{{ t('common.actions') }}</th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (c of list(); track c; let i = $index) {
+                      <tr>
+                        <td>{{ (page()?.number ?? 0) * (page()?.size ?? 0) + i + 1 }}</td>
+                        <td>{{ c.name }}</td>
+                        <td>{{ c.specialty || '-' }}</td>
+                        <td>{{ c.email || '-' }}</td>
+                        <td>{{ c.phone || '-' }}</td>
+                        @if (canManageCoaches()) {
+                          <td>
+                            <div style="display:flex; gap:10px; align-items:center; justify-content:center;">
+                              <button
+                                class="btn btn-edit shine"
+                                type="button"
+                                (click)="edit(c)"
+                                >
+                                {{ t('common.edit') }}
+                              </button>
+                              <button
+                                class="btn btn-danger shine"
+                                type="button"
+                                (click)="remove(c.id)"
+                                >
+                                {{ t('common.delete') }}
+                              </button>
+                            </div>
+                          </td>
+                        }
+                      </tr>
+                    }
+                    @if (!list().length) {
+                      <tr>
+                        <td
+                          [attr.colspan]="canManageCoaches() ? 6 : 5"
+                          style="color:var(--muted); text-align:center; padding:16px;"
+                          >
+                          {{ t('coaches.noData') }}
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+              <app-list-pager
+                [page]="page()"
+                [disabled]="loading()"
+                (pageChange)="loadCoaches($event)"
+              ></app-list-pager>
+            </div>
+          </div>
+        </div>

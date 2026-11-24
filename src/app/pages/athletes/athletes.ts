@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Athlete, AthleteService } from '../../services/athlete';
 import { apiErrorKey, ListPage } from '../../services/api';
@@ -8,11 +8,11 @@ import { LangService } from '../../services/lang';
 import { ListPagerComponent } from '../list-pager';
 
 @Component({
-  standalone: true,
-  selector: 'app-athletes',
-  imports: [CommonModule, FormsModule, ListPagerComponent],
-  templateUrl: './athletes.html',
-  styleUrl: './athletes.css'
+    selector: 'app-athletes',
+    imports: [FormsModule, ListPagerComponent],
+    templateUrl: './athletes.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './athletes.css'
 })
 export class AthletesComponent implements OnInit {
   private service = inject(AthleteService);
@@ -49,7 +49,6 @@ export class AthletesComponent implements OnInit {
     try {
       this.page.set(await this.service.listPage(page));
     } catch (error) {
-      console.error(error);
       this.page.set(null);
       this.listError.set(apiErrorKey(error, 'error.load'));
     } finally {
@@ -117,7 +116,6 @@ export class AthletesComponent implements OnInit {
       this.success.set(id === undefined ? 'common.created' : 'common.updated');
       await this.loadAthletes(id === undefined ? 0 : this.page()?.number ?? 0);
     } catch (error) {
-      console.error(error);
       this.error.set(apiErrorKey(error, 'error.save'));
     } finally {
       this.loading.set(false);
@@ -145,7 +143,6 @@ export class AthletesComponent implements OnInit {
       this.success.set('common.deleted');
       await this.loadAthletes();
     } catch (error) {
-      console.error(error);
       const key = apiErrorKey(error, 'error.delete');
       this.error.set(key === 'error.conflict' ? 'athletes.deleteConflict' : key);
     } finally {

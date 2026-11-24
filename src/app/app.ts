@@ -1,15 +1,15 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+
+import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { LangService } from './services/lang';
 import { AuthService } from './services/auth';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+    selector: 'app-root',
+    imports: [RouterOutlet, RouterLink],
+    templateUrl: './app.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './app.css'
 })
 export class AppComponent {
   year = new Date().getFullYear();

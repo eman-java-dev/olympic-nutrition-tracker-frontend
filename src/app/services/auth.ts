@@ -2,6 +2,8 @@ import { Injectable, inject, signal } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { apiRequestTimeout, requestTimedOut } from './api';
+import { readLocalPreference, writeLocalPreference } from './browser-storage';
 import { environment } from '../../environments/environment';
 
 export type Role = 'ADMIN' | 'COACH' | 'ATHLETE';
@@ -20,7 +22,7 @@ interface Session {
 type SessionNotice = 'expired' | 'rejected';
 type SessionValidation = { session: Session } | { error: 'expired' | 'invalid-response' };
 export type LoginError = 'credentials' | 'forbidden' | 'unavailable' | 'failed'
-  | 'expired' | 'invalid-response';
+  | 'expired' | 'invalid-response' | 'throttled';
 
 function decodeJwtObject(segment: string): Record<string, unknown> {
   const decoded = atob(segment.replace(/-/g, '+').replace(/_/g, '/'));
@@ -70,6 +72,8 @@ export class AuthService {
   private readonly storeKey = 'nt_session';
   private readonly session = signal<Session | null>(null);
   private readonly notice = signal<SessionNotice | null>(null);
+  private readonly retryAfter = signal<number | null>(null);
+  readonly retryAfterSeconds = this.retryAfter.asReadonly();
   private expiryTimer?: number;
   readonly sessionNotice = this.notice.asReadonly();
 
@@ -78,28 +82,36 @@ export class AuthService {
     private http: HttpClient
   ) {
     // Older sessions may contain a guessed role or a demo password.
-    localStorage.removeItem('nt_user');
+    writeLocalPreference('nt_user', null);
     this.restoreSession();
   }
 
   async login(username: string, password: string): Promise<LoginError | null> {
     this.notice.set(null);
+    this.retryAfter.set(null);
     username = username.trim();
     if (!username || !password) return 'credentials';
 
     try {
       const response = await firstValueFrom(
-        this.http.post<unknown>(environment.apiUrl + '/auth/login', { username, password })
+        this.http.post<unknown>(environment.apiUrl + '/auth/login', { username, password }).pipe(apiRequestTimeout(75_000))
       );
 
       const result = validateSession(response);
       if ('error' in result) return result.error;
 
-      localStorage.setItem(this.storeKey, JSON.stringify(result.session.user));
+      writeLocalPreference(this.storeKey, JSON.stringify(result.session.user));
       this.startSession(result.session);
       return null;
     } catch (error) {
+      if (requestTimedOut(error)) return 'unavailable';
       if (error instanceof HttpErrorResponse) {
+        if (error.status === 429) {
+          const header = error.headers.get('Retry-After');
+          const seconds = header && /^\d+$/.test(header) ? Number(header) : null;
+          this.retryAfter.set(Number.isSafeInteger(seconds) ? seconds : null);
+          return 'throttled';
+        }
         if (error.status === 401) return 'credentials';
         if (error.status === 403) return 'forbidden';
         if (error.status === 0 || error.status >= 500) return 'unavailable';
@@ -109,7 +121,7 @@ export class AuthService {
   }
 
   private restoreSession(): void {
-    const raw = localStorage.getItem(this.storeKey);
+    const raw = readLocalPreference(this.storeKey);
     if (raw === null) return;
 
     let value: unknown;
@@ -145,7 +157,7 @@ export class AuthService {
 
   private clearSession(notice: SessionNotice | null): void {
     window.clearTimeout(this.expiryTimer);
-    localStorage.removeItem(this.storeKey);
+    writeLocalPreference(this.storeKey, null);
     this.session.set(null);
     this.notice.set(notice);
   }

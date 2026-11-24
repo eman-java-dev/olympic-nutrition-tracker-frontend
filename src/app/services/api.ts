@@ -1,7 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout, TimeoutError } from 'rxjs';
 import { environment } from '../../environments/environment';
+
+export function apiRequestTimeout<T>(milliseconds = 15_000) {
+  return timeout<T>({ first: milliseconds });
+}
+
+export function requestTimedOut(error: unknown): boolean {
+  return error instanceof TimeoutError;
+}
 
 export interface ListPage<T> {
   items: T[];
@@ -22,10 +30,13 @@ export function singlePage<T>(items: T[]): ListPage<T> {
 }
 
 export function apiErrorKey(error: unknown, fallback: string): string {
+  if (requestTimedOut(error)) return fallback === 'error.save' || fallback === 'error.delete'
+    ? 'error.writeTimeout' : 'error.unavailable';
   if (!(error instanceof HttpErrorResponse)) return fallback;
   if (error.status === 0) return 'error.unavailable';
   if (error.status === 401) return 'error.unauthorized';
   if (error.status === 403) return 'error.forbidden';
+  if (error.status === 429) return 'error.throttled';
   if (error.status === 409) return 'error.conflict';
   if ((error.status === 400 || error.status === 422) && fallback === 'error.save') {
     return 'error.invalidData';
@@ -39,7 +50,7 @@ export class ApiService {
   private base = environment.apiUrl;
 
   async get<T>(path: string): Promise<T> {
-    return firstValueFrom(this.http.get<T>(`${this.base}${path}`));
+    return firstValueFrom(this.http.get<T>(`${this.base}${path}`).pipe(apiRequestTimeout<T>()));
   }
 
   async getPage<T>(path: string, page: number): Promise<ListPage<T>> {
@@ -61,7 +72,7 @@ export class ApiService {
   private async readPage<T>(path: string, page: number, size: number, sort = 'id,asc'): Promise<ListPage<T>> {
     const params = { page, size, sort };
     const response = await firstValueFrom(
-      this.http.get<T[] | SpringPage<T>>(this.base + path, { params })
+      this.http.get<T[] | SpringPage<T>>(this.base + path, { params }).pipe(apiRequestTimeout<T[] | SpringPage<T>>())
     );
     if (Array.isArray(response)) return singlePage(response);
     if (!Array.isArray(response?.content) || response.number !== page
@@ -78,14 +89,14 @@ export class ApiService {
   }
 
   async post<T>(path: string, body: unknown): Promise<T> {
-    return firstValueFrom(this.http.post<T>(`${this.base}${path}`, body));
+    return firstValueFrom(this.http.post<T>(`${this.base}${path}`, body).pipe(apiRequestTimeout<T>()));
   }
 
   async put<T>(path: string, body: unknown): Promise<T> {
-    return firstValueFrom(this.http.put<T>(`${this.base}${path}`, body));
+    return firstValueFrom(this.http.put<T>(`${this.base}${path}`, body).pipe(apiRequestTimeout<T>()));
   }
 
   async delete<T>(path: string): Promise<T> {
-    return firstValueFrom(this.http.delete<T>(`${this.base}${path}`));
+    return firstValueFrom(this.http.delete<T>(`${this.base}${path}`).pipe(apiRequestTimeout<T>()));
   }
 }

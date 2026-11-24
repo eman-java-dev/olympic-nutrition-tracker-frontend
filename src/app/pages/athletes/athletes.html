@@ -6,7 +6,7 @@
     border-bottom-right-radius: 24px;
     overflow: hidden;
   "
->
+  >
   <video autoplay muted loop playsinline class="hero-video">
     <source src="assets/side.mp4" type="video/mp4" />
   </video>
@@ -22,189 +22,199 @@
 <section class="section">
   <div class="container">
 
-    <ng-container *ngFor="let key of [error(), listError()]">
-      <div *ngIf="key" role="alert" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
-        <div class="card-body" style="color:#ff4d4f;">{{ t(key) }}</div>
+    @for (key of [error(), listError()]; track key) {
+      @if (key) {
+        <div role="alert" class="card" style="margin-bottom:12px; border-color:#ff4d4f;">
+          <div class="card-body" style="color:#ff4d4f;">{{ t(key) }}</div>
+        </div>
+      }
+    }
+
+    @if (success()) {
+      <div role="status" class="card" style="margin-bottom:12px;">
+        <div class="card-body">{{ t(success()) }}</div>
       </div>
-    </ng-container>
+    }
 
-    <div *ngIf="success()" role="status" class="card" style="margin-bottom:12px;">
-      <div class="card-body">{{ t(success()) }}</div>
-    </div>
-
-    <div
-      *ngIf="!canManageAthletes()"
-      class="card"
+    @if (!canManageAthletes()) {
+      <div
+        class="card"
       style="
         margin-bottom: 12px;
         border-color: rgba(255, 209, 0, 0.35);
       "
-    >
-      <div class="card-body" style="color: var(--muted);">
-        {{ t('common.readOnlyAdmin') }}
-      </div>
-    </div>
-
-    <form
-      *ngIf="canManageAthletes()"
-      #f="ngForm"
-      (ngSubmit)="save(f)"
-      style="
-        display: grid;
-        grid-template-columns: 1fr 120px 140px 140px auto;
-        gap: 12px;
-      "
-    >
-      <input
-        class="input"
-        [attr.aria-label]="t('common.name')"
-        [placeholder]="t('common.name')"
-        name="name"
-        [(ngModel)]="model.name"
-        maxlength="120"
-        required
-      />
-
-      <input
-        class="input"
-        type="number"
-        [attr.aria-label]="t('athletes.age')"
-        [placeholder]="t('athletes.age')"
-        name="age"
-        [(ngModel)]="model.age"
-        min="1"
-        max="120"
-      />
-
-      <input
-        class="input"
-        type="number"
-        [attr.aria-label]="t('athletes.weight')"
-        [placeholder]="t('athletes.weight')"
-        name="weight"
-        [(ngModel)]="model.weight"
-        min="1"
-        step="0.1"
-      />
-
-      <input
-        class="input"
-        type="number"
-        [attr.aria-label]="t('athletes.height')"
-        [placeholder]="t('athletes.height')"
-        name="height"
-        [(ngModel)]="model.height"
-        min="1"
-        step="0.1"
-      />
-
-      <button
-        class="btn btn-primary shine"
-        type="submit"
-        [disabled]="loading() || f.invalid"
-      >
-        {{ t(editingId() !== undefined ? 'common.update' : 'common.add') }}
-      </button>
-      <button *ngIf="editingId() !== undefined" class="btn btn-ghost shine" type="button"
-              (click)="resetForm(f)" [disabled]="loading()">
-        {{ t('common.cancel') }}
-      </button>
-      <small *ngIf="f.invalid && (f.dirty || f.submitted)" style="grid-column:1/-1;">
-        {{ t('validation.form') }}
-      </small>
-    </form>
-
-    <div style="height: 12px;"></div>
-
-    <button
-      class="btn btn-ghost shine"
-      type="button"
-      (click)="loadAthletes()"
-      [disabled]="loading()"
-      style="margin-bottom: 12px;"
-    >
-      {{ t('common.refresh') }}
-    </button>
-
-    <div class="card">
-      <div class="card-body">
-
-        <div
-          *ngIf="loading()"
-          style="padding: 12px; color: var(--muted);"
         >
-          {{ t('common.loading') }}
+        <div class="card-body" style="color: var(--muted);">
+          {{ t('common.readOnlyAdmin') }}
         </div>
+      </div>
+    }
 
-        <table class="table" *ngIf="!loading() && page()">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>{{ t('common.name') }}</th>
-              <th>{{ t('athletes.age') }}</th>
-              <th>{{ t('athletes.weight') }}</th>
-              <th>{{ t('athletes.height') }}</th>
-              <th *ngIf="canManageAthletes()">{{ t('common.actions') }}</th>
-            </tr>
-          </thead>
+    @if (canManageAthletes()) {
+      <form
+        #f="ngForm"
+        (ngSubmit)="save(f)"
+      class="record-form"
+      [attr.aria-busy]="loading()"
+        >
+        <input
+          class="input"
+          [attr.aria-label]="t('common.name')"
+          [placeholder]="t('common.name')"
+          name="name"
+          [(ngModel)]="model.name"
+          maxlength="120"
+          required
+          />
+          <input
+            class="input"
+            type="number"
+            [attr.aria-label]="t('athletes.age')"
+            [placeholder]="t('athletes.age')"
+            name="age"
+            [(ngModel)]="model.age"
+            min="1"
+            max="120"
+            />
+            <input
+              class="input"
+              type="number"
+              [attr.aria-label]="t('athletes.weight')"
+              [placeholder]="t('athletes.weight')"
+              name="weight"
+              [(ngModel)]="model.weight"
+              min="1"
+              step="0.1"
+              />
+              <input
+                class="input"
+                type="number"
+                [attr.aria-label]="t('athletes.height')"
+                [placeholder]="t('athletes.height')"
+                name="height"
+                [(ngModel)]="model.height"
+                min="1"
+                step="0.1"
+                />
+                <button
+                  class="btn btn-primary shine"
+                  type="submit"
+                  [disabled]="loading() || f.invalid"
+                  >
+                  {{ t(editingId() !== undefined ? 'common.update' : 'common.add') }}
+                </button>
+                @if (editingId() !== undefined) {
+                  <button class="btn btn-ghost shine" type="button"
+                    (click)="resetForm(f)" [disabled]="loading()">
+                    {{ t('common.cancel') }}
+                  </button>
+                }
+                @if (f.invalid && (f.dirty || f.submitted)) {
+                  <small style="grid-column:1/-1;">
+                    {{ t('validation.form') }}
+                  </small>
+                }
+              </form>
+            }
 
-          <tbody>
-            <tr *ngFor="let athlete of list(); let i = index">
-              <td>{{ (page()?.number ?? 0) * (page()?.size ?? 0) + i + 1 }}</td>
-              <td>{{ athlete.name }}</td>
-              <td>{{ athlete.age ?? '—' }}</td>
-              <td>{{ athlete.weight ?? '—' }}</td>
-              <td>{{ athlete.height ?? '—' }}</td>
+            <div style="height: 12px;"></div>
 
-              <td *ngIf="canManageAthletes()">
-                <div
+            <button
+              class="btn btn-ghost shine"
+              type="button"
+              (click)="loadAthletes()"
+              [disabled]="loading()"
+              style="margin-bottom: 12px;"
+              >
+              {{ t('common.refresh') }}
+            </button>
+
+            <div class="card">
+              <div class="card-body">
+
+                @if (loading()) {
+                  <div
+                    style="padding: 12px; color: var(--muted);"
+                    >
+                    {{ t('common.loading') }}
+                  </div>
+                }
+
+                @if (!loading() && page()) {
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>{{ t('common.name') }}</th>
+                        <th>{{ t('athletes.age') }}</th>
+                        <th>{{ t('athletes.weight') }}</th>
+                        <th>{{ t('athletes.height') }}</th>
+                        @if (canManageAthletes()) {
+                          <th>{{ t('common.actions') }}</th>
+                        }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (athlete of list(); track athlete; let i = $index) {
+                        <tr>
+                          <td>{{ (page()?.number ?? 0) * (page()?.size ?? 0) + i + 1 }}</td>
+                          <td>{{ athlete.name }}</td>
+                          <td>{{ athlete.age ?? '—' }}</td>
+                          <td>{{ athlete.weight ?? '—' }}</td>
+                          <td>{{ athlete.height ?? '—' }}</td>
+                          @if (canManageAthletes()) {
+                            <td>
+                              <div
                   style="
                     display: flex;
                     gap: 8px;
                     justify-content: center;
                   "
-                >
-                  <button
-                    class="btn btn-edit shine"
-                    type="button"
-                    (click)="startEdit(athlete)"
-                  >
-                    {{ t('common.edit') }}
-                  </button>
-
-                  <button
-                    class="btn btn-danger shine"
-                    type="button"
-                    (click)="remove(athlete.id)"
-                  >
-                    {{ t('common.delete') }}
-                  </button>
-                </div>
-              </td>
-            </tr>
-
-            <tr *ngIf="!list().length">
-              <td
-                [attr.colspan]="canManageAthletes() ? 6 : 5"
+                                >
+                                <button
+                                  class="btn btn-edit shine"
+                                  type="button"
+                                  (click)="startEdit(athlete)"
+                                  >
+                                  {{ t('common.edit') }}
+                                </button>
+                                <button
+                                  class="btn btn-danger shine"
+                                  type="button"
+                                  (click)="remove(athlete.id)"
+                                  >
+                                  {{ t('common.delete') }}
+                                </button>
+                              </div>
+                            </td>
+                          }
+                        </tr>
+                      }
+                      @if (!list().length) {
+                        <tr>
+                          <td
+                            [attr.colspan]="canManageAthletes() ? 6 : 5"
                 style="
                   text-align: center;
                   padding: 16px;
                   color: var(--muted);
                 "
-              >
-                {{ t('athletes.noData') }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <app-list-pager
-          [page]="page()"
-          [disabled]="loading()"
-          (pageChange)="loadAthletes($event)"
-        ></app-list-pager>
+                            >
+                            {{ t('athletes.noData') }}
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+                <app-list-pager
+                  [page]="page()"
+                  [disabled]="loading()"
+                  (pageChange)="loadAthletes($event)"
+                ></app-list-pager>
 
-      </div>
-    </div>
+              </div>
+            </div>
 
-  </div>
-</section>
+          </div>
+        </section>

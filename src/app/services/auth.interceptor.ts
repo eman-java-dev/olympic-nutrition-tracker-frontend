@@ -1,6 +1,6 @@
-import { DOCUMENT } from '@angular/common';
+
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, DOCUMENT } from '@angular/core';
 import { tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth';
