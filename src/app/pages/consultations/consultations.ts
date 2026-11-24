@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Consultation, ConsultationService } from '../../services/consultation';
 import { Athlete, AthleteService } from '../../services/athlete';
@@ -14,6 +14,7 @@ import { localDateTime } from '../local-date';
     selector: 'app-consultations',
     imports: [CommonModule, FormsModule, ListPagerComponent],
     templateUrl: './consultations.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './consultations.css'
 })
 export class ConsultationsComponent implements OnInit {

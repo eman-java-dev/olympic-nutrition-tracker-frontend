@@ -4,7 +4,7 @@ Olympic Nutrition Tracker is an Angular application for managing athlete profile
 
 [Open the live application](https://olympic-nutrition-tracker-frontend.onrender.com) · [Check API reachability](https://olympicnutritiontracker-backend.onrender.com/healthz)
 
-The candidate resolves Angular core 21.2.26, Angular CLI 21.2.31, TypeScript 5.9.3, and RxJS 7.8.2 from the [lockfile](package-lock.json).
+The lockfile resolves Angular core 22.3.0, Angular CLI 22.3.0, TypeScript 6.0.3, and RxJS 7.8.2.
 
 ## Screenshots
 
@@ -39,7 +39,7 @@ The interface uses the account role to control which actions are visible. The ba
 
 ## Local development
 
-Use Node.js 24.22.3, pinned in [.nvmrc](.nvmrc), and the included npm. The update moved through Angular 18, 19, 20 and 21 with browser tests and a production build between each major. [Angular version compatibility](https://angular.dev/reference/versions) ? [Node.js release lifecycle](https://nodejs.org/en/about/previous-releases)
+Use Node.js 24.22.3, pinned in [.nvmrc](.nvmrc), and the included npm. The migration ran one major at a time. Angular 17 and 18 used Node 20.20.2, Angular 19 and 20 used Node 22.18.0, and Angular 21 and 22 used Node 24.22.3. The earlier unsupported versions were used only in the isolated migration. Angular 22 addresses development dependency advisories reported at Angular 21. [Angular compatibility](https://angular.dev/reference/versions) ? [Node.js release lifecycle](https://nodejs.org/en/about/previous-releases)
 
 From the repository root:
 
@@ -78,6 +78,6 @@ The frontend uses the token expiry and role for navigation and display. The back
 Run `npm test` for the Angular browser suite in ChromeHeadless. Set `CHROME_BIN` if Chrome is installed in a nonstandard location.
 Run `npm run build` for production assets and `npm audit --audit-level=high` for the lockfile dependency check.
 
-The optional Playwright suite uses only the local frontend and a disposable backend. Start the backend fixture at `http://localhost:8080` with the synthetic accounts seeded by the backend fixture script. Set `BROWSER_TEST_PASSWORD` in the local environment to the generated fixture password, then run `npm run test:e2e`. Playwright starts the local frontend and uses installed Chrome. Traces, screenshots and videos are disabled.
+The optional Playwright suite uses only the local frontend and a disposable backend. Start the backend fixture at `http://localhost:8080` with the synthetic accounts seeded by the backend fixture script. Set `BROWSER_TEST_PASSWORD` in the local environment to the generated fixture password, then run `npm run test:e2e`. Playwright starts the local frontend using the CSP-enabled e2e serve configuration and uses installed Chrome. Traces, screenshots and videos are disabled.
 
 The UI supports sign-in and sign-out. Registration remains available through the backend API. See [the session decision and staging header policy](deploy/browser-security.md).

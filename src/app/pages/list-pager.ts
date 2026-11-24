@@ -1,11 +1,12 @@
 
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { LangService } from '../services/lang';
 import type { ListPage } from '../services/api';
 
 @Component({
     selector: 'app-list-pager',
     imports: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
     @if (page && page.totalPages > 1) {
       <nav [attr.aria-label]="t('pager.label')"

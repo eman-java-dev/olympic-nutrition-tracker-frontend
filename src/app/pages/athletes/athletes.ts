@@ -1,5 +1,5 @@
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Athlete, AthleteService } from '../../services/athlete';
 import { apiErrorKey, ListPage } from '../../services/api';
@@ -11,6 +11,7 @@ import { ListPagerComponent } from '../list-pager';
     selector: 'app-athletes',
     imports: [FormsModule, ListPagerComponent],
     templateUrl: './athletes.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './athletes.css'
 })
 export class AthletesComponent implements OnInit {

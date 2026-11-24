@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Location } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { LangService } from '../../services/lang';
     selector: 'app-signin',
     imports: [FormsModule],
     templateUrl: './signin.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './signin.css'
 })
 export class SignInComponent {

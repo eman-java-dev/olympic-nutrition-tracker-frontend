@@ -1,5 +1,5 @@
 
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { LangService } from './services/lang';
 import { AuthService } from './services/auth';
@@ -8,6 +8,7 @@ import { AuthService } from './services/auth';
     selector: 'app-root',
     imports: [RouterOutlet, RouterLink],
     templateUrl: './app.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './app.css'
 })
 export class AppComponent {

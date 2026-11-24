@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NutritionService } from '../../services/nutrition';
 import type { NutritionEntry } from '../../services/nutrition-entry';
@@ -14,6 +14,7 @@ import { localDateTime } from '../local-date';
     selector: 'app-nutrition',
     imports: [CommonModule, FormsModule, ListPagerComponent],
     templateUrl: './nutrition.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './nutrition.css'
 })
 export class NutritionComponent implements OnInit {
