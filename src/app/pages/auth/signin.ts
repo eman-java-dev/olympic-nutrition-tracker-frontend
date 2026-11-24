@@ -19,6 +19,13 @@ export class SignInComponent {
 
   t = (key: string) => this.lang.t(key);
 
+  get errorMessage(): string {
+    const retry = this.auth.retryAfterSeconds();
+    return this.error === 'auth.throttled' && retry !== null
+      ? this.t('auth.retryAfter').replace('{seconds}', String(retry))
+      : this.t(this.error || this.sessionMessage);
+  }
+
   get canGoBack(): boolean {
     return window.history.length > 1;
   }

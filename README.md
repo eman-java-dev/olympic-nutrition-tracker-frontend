@@ -4,7 +4,7 @@ Olympic Nutrition Tracker is an Angular application for managing athlete profile
 
 [Open the live application](https://olympic-nutrition-tracker-frontend.onrender.com) · [Check API reachability](https://olympicnutritiontracker-backend.onrender.com/healthz)
 
-The [package manifest](package.json) targets Angular 17.3. The [lockfile](package-lock.json) resolves Angular core 17.3.12, Angular CLI 17.3.17, TypeScript 5.3.3, and RxJS 7.8.2.
+The candidate resolves Angular core 21.2.26, Angular CLI 21.2.31, TypeScript 5.9.3, and RxJS 7.8.2 from the [lockfile](package-lock.json).
 
 ## Screenshots
 
@@ -39,7 +39,7 @@ The interface uses the account role to control which actions are visible. The ba
 
 ## Local development
 
-To reproduce the audited Angular 17.3 build, use Node.js `20.20.2` and npm. Angular 17 is no longer supported, and Node.js 20 has reached end of life. A coordinated framework and runtime upgrade is separate follow-up work. [Angular version compatibility](https://angular.dev/reference/versions) · [Node.js end-of-life releases](https://nodejs.org/en/about/eol)
+Use Node.js 24.22.3, pinned in [.nvmrc](.nvmrc), and the included npm. The update moved through Angular 18, 19, 20 and 21 with browser tests and a production build between each major. [Angular version compatibility](https://angular.dev/reference/versions) ? [Node.js release lifecycle](https://nodejs.org/en/about/previous-releases)
 
 From the repository root:
 
@@ -63,7 +63,7 @@ The [Angular build configuration](angular.json) selects the production environme
 npm run build -- --configuration production
 ```
 
-The deployed frontend is served over HTTPS as a Render Static Site. For a corresponding deployment, build from the repository root with `npm ci` and the production build command, publish `dist/app`, and rewrite Angular paths from `/*` to `/index.html` so that a route can be opened directly or refreshed. Angular sends API requests directly to the separate Render backend by absolute URL. [Render routes and rewrites](https://render.com/docs/redirects-rewrites)
+The repository targets an HTTPS Render Static Site. For a corresponding deployment, build from the repository root with `npm ci` and the production build command, publish `dist/app`, and rewrite Angular paths from `/*` to `/index.html` so that a route can be opened directly or refreshed. Angular sends API requests directly to the separate Render backend by absolute URL. [Render routes and rewrites](https://render.com/docs/redirects-rewrites)
 
 The API must allow the exact frontend origin, `https://olympic-nutrition-tracker-frontend.onrender.com`, in its `CORS_ALLOWED_ORIGINS` settings. Requests use `Content-Type` for JSON and `Authorization` for bearer tokens. The backend handles CORS preflights for cross-origin requests.
 
@@ -75,6 +75,9 @@ The frontend uses the token expiry and role for navigation and display. The back
 
 ## Verification and remaining work
 
-The 23 November 2026 audit reported a successful production build at `80509cf` using Node.js `20.20.2`. `npm test` prints `No tests configured`. The frontend had no configured automated test target or browser end-to-end suite, so the audit ran neither. Its public route and CORS checks covered connectivity.
+Run `npm test` for the Angular browser suite in ChromeHeadless. Set `CHROME_BIN` if Chrome is installed in a nonstandard location.
+Run `npm run build` for production assets and `npm audit --audit-level=high` for the lockfile dependency check.
 
-The UI supports sign-in and sign-out. Registration exists in the backend API. A registration screen, automated guard and interceptor tests, and browser tests for role-specific workflows remain follow-up work.
+The optional Playwright suite uses only the local frontend and a disposable backend. Start the backend fixture at `http://localhost:8080` with the synthetic accounts seeded by the backend fixture script. Set `BROWSER_TEST_PASSWORD` in the local environment to the generated fixture password, then run `npm run test:e2e`. Playwright starts the local frontend and uses installed Chrome. Traces, screenshots and videos are disabled.
+
+The UI supports sign-in and sign-out. Registration remains available through the backend API. See [the session decision and staging header policy](deploy/browser-security.md).

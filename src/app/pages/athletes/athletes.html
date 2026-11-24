@@ -54,11 +54,8 @@
       <form
         #f="ngForm"
         (ngSubmit)="save(f)"
-      style="
-        display: grid;
-        grid-template-columns: 1fr 120px 140px 140px auto;
-        gap: 12px;
-      "
+      class="record-form"
+      [attr.aria-busy]="loading()"
         >
         <input
           class="input"

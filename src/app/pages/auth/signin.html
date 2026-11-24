@@ -21,14 +21,14 @@
         {{ t('auth.lead') }}
       </p>
 
-      @if (error || sessionMessage; as message) {
+      @if (error || sessionMessage) {
         <div
           role="alert"
           class="card"
           style="margin-bottom:14px; border-color:#ff4d4f;"
           >
           <div class="card-body" style="color:#ff4d4f; padding:12px;">
-            {{ t(message) }}
+            {{ errorMessage }}
           </div>
         </div>
       }
@@ -62,7 +62,7 @@
             required
             />
 
-            <div class="actions">
+            <div class="actions" [attr.aria-busy]="loading">
               <button
                 type="submit"
                 class="btn btn-primary"

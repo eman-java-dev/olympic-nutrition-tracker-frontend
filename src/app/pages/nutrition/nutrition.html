@@ -54,13 +54,8 @@
       <form
         #f="ngForm"
         (ngSubmit)="save(f)"
-      style="
-        display: grid;
-        grid-template-columns:
-          190px 150px 110px 110px 110px 110px 1fr 120px;
-        gap: 12px;
-        align-items: center;
-      "
+      class="record-form"
+      [attr.aria-busy]="loading()"
         >
         <select
           class="input"
@@ -133,7 +128,7 @@
                     [placeholder]="t('common.notes')"
                     name="notes"
                     [(ngModel)]="model.notes"
-                    maxlength="500"
+                    maxlength="300"
                     />
                     <button
                       class="btn btn-primary shine"

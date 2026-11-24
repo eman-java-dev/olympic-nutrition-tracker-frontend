@@ -68,7 +68,6 @@ export class NutritionComponent implements OnInit {
     try {
       this.page.set(await this.service.listPage(page));
     } catch (error) {
-      console.error(error);
       this.page.set(null);
       this.listError.set(apiErrorKey(error, 'error.load'));
     } finally {
@@ -88,7 +87,6 @@ export class NutritionComponent implements OnInit {
     try {
       this.athletes.set(await this.athleteService.listAll());
     } catch (error) {
-      console.error(error);
       this.lookupError.set('error.lookups');
     } finally {
       this.optionsLoading.set(false);
@@ -154,7 +152,6 @@ export class NutritionComponent implements OnInit {
       this.success.set(id === undefined ? 'common.created' : 'common.updated');
       await this.loadPageData(id === undefined ? 0 : this.page()?.number ?? 0);
     } catch (error) {
-      console.error(error);
       this.error.set(apiErrorKey(error, 'error.save'));
     } finally {
       this.loading.set(false);
@@ -182,7 +179,6 @@ export class NutritionComponent implements OnInit {
       this.success.set('common.deleted');
       await this.loadPageData();
     } catch (error) {
-      console.error(error);
       this.error.set(apiErrorKey(error, 'error.delete'));
     } finally {
       this.loading.set(false);
